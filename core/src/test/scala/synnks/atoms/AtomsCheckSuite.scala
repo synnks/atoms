@@ -3,7 +3,7 @@ package synnks.atoms
 import cats.data.NonEmptyList
 import munit.ScalaCheckSuite
 import org.scalacheck.Arbitrary
-import synnks.atoms.util.{AtomsTestInstances, HListTestInstances}
+import synnks.atoms.util.{ AtomsTestInstances, HListTestInstances }
 
 trait AtomsCheckSuite extends ScalaCheckSuite with HListTestInstances with AtomsTestInstances {
 

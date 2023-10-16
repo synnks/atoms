@@ -18,6 +18,8 @@ ThisBuild / libraryDependencies ++= Seq(
   "org.scalameta" %% "munit-scalacheck" % MUnitVersion % Test
 )
 
+ThisBuild / coverageEnabled := true
+
 ThisBuild / scalacOptions ++= Seq(
   "-encoding",
   "utf8",
