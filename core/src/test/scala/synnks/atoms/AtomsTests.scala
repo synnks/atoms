@@ -38,7 +38,11 @@ class AtomsTests extends AtomsCheckSuite {
 
   test("groupBy 1 level head of HList") {
     forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
-      val expected = atoms.values.groupMapNem(_.keys.head)(_.mapKeys(_.tail)).map(Atoms(_))
+      val expected = NestedAtoms(
+        atoms.values
+          .groupMapNem(_.keys.head)(_.mapKeys(_.tail))
+          .map(Atoms(_))
+      )
 
       assert(atoms.groupBy[Int :: HNil] === expected)
     }
@@ -46,9 +50,11 @@ class AtomsTests extends AtomsCheckSuite {
 
   test("groupBy 1 level mid element of HList") {
     forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
-      val expected = atoms.values
-        .groupMapNem(_.keys.select[String])(_.mapKeys(_.removeElem[String]._2))
-        .map(Atoms(_))
+      val expected = NestedAtoms(
+        atoms.values
+          .groupMapNem(_.keys.select[String])(_.mapKeys(_.removeElem[String]._2))
+          .map(Atoms(_))
+      )
 
       assert(atoms.groupBy[String :: HNil] === expected)
     }
@@ -56,12 +62,16 @@ class AtomsTests extends AtomsCheckSuite {
 
   test("groupBy all levels") {
     forAll { (atoms: Atoms[Int :: String :: Double :: HNil, Boolean]) =>
-      val expected = atoms.values
-        .groupMapNem(_.keys.select[Int])(_.mapKeys(_.removeElem[Int]._2))
-        .map(
-          _.groupMapNem(_.keys.select[String])(_.mapKeys(_.removeElem[String]._2))
-            .map(_.groupMapNem(_.keys.select[Double])(_.mapKeys(_.removeElem[Double]._2)).map(Atoms(_)))
-        )
+      val expected = NestedAtoms(
+        atoms.values
+          .groupMapNem(_.keys.select[Int])(_.mapKeys(_.removeElem[Int]._2))
+          .map(
+            _.groupMapNem(_.keys.select[String])(_.mapKeys(_.removeElem[String]._2))
+              .map(_.groupMapNem(_.keys.select[Double])(_.mapKeys(_.removeElem[Double]._2)).map(Atoms(_)))
+              .map(NestedAtoms(_))
+          )
+          .map(NestedAtoms(_))
+      )
 
       assert(atoms.groupBy[Int :: String :: Double :: HNil] === expected)
     }
@@ -69,11 +79,14 @@ class AtomsTests extends AtomsCheckSuite {
 
   test("groupBy skip levels") {
     forAll { (atoms: Atoms[Int :: String :: Double :: HNil, Boolean]) =>
-      val expected = atoms.values
-        .groupMapNem(_.keys.select[String])(_.mapKeys(_.removeElem[String]._2))
-        .map(Atoms(_))
+      val expected = NestedAtoms(
+        atoms.values
+          .groupMapNem(_.keys.select[Int])(_.mapKeys(_.removeElem[Int]._2))
+          .map(_.groupMapNem(_.keys.select[Double])(_.mapKeys(_.removeElem[Double]._2)).map(Atoms(_)))
+          .map(NestedAtoms(_))
+      )
 
-      assert(atoms.groupBy[String :: HNil] === expected)
+      assert(atoms.groupBy[Int :: Double :: HNil] === expected)
     }
   }
 }

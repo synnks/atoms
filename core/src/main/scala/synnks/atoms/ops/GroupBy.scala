@@ -1,10 +1,9 @@
 package synnks.atoms.ops
 
 import cats.Order
-import cats.data.NonEmptyMap
 import shapeless.*
 import shapeless.ops.hlist.Remove
-import synnks.atoms.Atoms
+import synnks.atoms.{ Atoms, GroupedAtoms, NestedAtoms }
 
 sealed trait GroupBy[L <: HList, K <: HList, V] {
   type Out
@@ -19,22 +18,24 @@ object GroupBy {
     instance: GroupBy[L, K, V]
   ): GroupBy.Aux[L, K, V, instance.Out] = instance
 
-  implicit def groupByBase[K <: HList, V]: GroupBy.Aux[HNil, K, V, Atoms[K, V]] = new GroupBy[HNil, K, V] {
-    override type Out = Atoms[K, V]
+  implicit def groupByBase[K <: HList, V]: GroupBy.Aux[HNil, K, V, GroupedAtoms[HNil, K, V]] = new GroupBy[HNil, K, V] {
+    override type Out = GroupedAtoms[HNil, K, V]
 
     override def apply(atoms: Atoms[K, V]): Out = atoms
   }
 
-  implicit def groupByRecurse[LH, LT <: HList, K <: HList, V, RemK <: HList](implicit
+  implicit def groupByRecurse[LH, LT <: HList, K <: HList, V, RemK <: HList, NK <: HList](implicit
     order: Order[LH],
     remove: Remove.Aux[K, LH, (LH, RemK)],
-    groupBy: GroupBy[LT, RemK, V]
-  ): GroupBy.Aux[LH :: LT, K, V, NonEmptyMap[LH, groupBy.Out]] = new GroupBy[LH :: LT, K, V] {
-    override type Out = NonEmptyMap[LH, groupBy.Out]
+    groupBy: GroupBy.Aux[LT, RemK, V, GroupedAtoms[LT, NK, V]]
+  ): GroupBy.Aux[LH :: LT, K, V, GroupedAtoms[LH :: LT, NK, V]] = new GroupBy[LH :: LT, K, V] {
+    override type Out = GroupedAtoms[LH :: LT, NK, V]
 
     override def apply(atoms: Atoms[K, V]): Out =
-      atoms.values
-        .groupByNem(_.keys.removeElem[LH]._1)
-        .map(values => groupBy(Atoms(values).mapKeys(_.removeElem[LH]._2)))
+      NestedAtoms {
+        atoms.values
+          .groupByNem(_.keys.removeElem[LH]._1)
+          .map(values => groupBy(Atoms(values).mapKeys(_.removeElem[LH]._2)))
+      }
   }
 }
