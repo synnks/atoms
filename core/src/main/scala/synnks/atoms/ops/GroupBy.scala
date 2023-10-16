@@ -3,7 +3,7 @@ package synnks.atoms.ops
 import cats.Order
 import shapeless.*
 import shapeless.ops.hlist.Remove
-import synnks.atoms.{ Atoms, GroupedAtoms, NestedAtoms }
+import synnks.atoms.*
 
 sealed trait GroupBy[L <: HList, G <: HList, K <: HList, V] {
   type Out

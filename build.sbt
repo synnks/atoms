@@ -29,7 +29,6 @@ ThisBuild / scalacOptions ++= Seq(
   "-unchecked",
   "-Wnonunit-statement",
   "-Wvalue-discard",
-  "-Xlint:unused",
   "-Xlint:implicit-recursion",
   "-Xfatal-warnings",
   "-Xsource:3",

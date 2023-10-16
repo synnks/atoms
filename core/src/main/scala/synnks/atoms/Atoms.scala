@@ -4,7 +4,7 @@ import cats.{ Reducible, Semigroup }
 import cats.data.{ NonEmptyList, NonEmptyMap }
 import cats.syntax.all.*
 import shapeless.*
-import synnks.atoms.ops.GroupBy
+import synnks.atoms.ops.*
 
 sealed trait GroupedAtoms[G <: HList, K <: HList, V] {
 
@@ -15,6 +15,8 @@ sealed trait GroupedAtoms[G <: HList, K <: HList, V] {
   def mapKeys[NK <: HList](f: K => NK): GroupedAtoms[G, NK, V] = map(_.mapKeys(f))
 
   def groupBy[L <: HList](implicit groupBy: GroupBy[L, G, K, V]): groupBy.Out = groupBy(this)
+
+  def ungroupBy[L <: HList](implicit ungroupBy: UngroupBy[L, G, K, V]): ungroupBy.Out = ungroupBy(this)
 }
 
 object GroupedAtoms {

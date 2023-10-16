@@ -14,7 +14,8 @@ trait AtomsTestInstances {
     Order.by(_.value)
   )
 
-  implicit def anyOrderAtomsEq[K <: HList: Order, V: Order]: Eq[Atoms[K, V]] = Order.by(_.values)
+  implicit def anyOrderAtomsEq[K <: HList, V](implicit order: Order[Atom[K, V]]): Eq[Atoms[K, V]] =
+    Eq.by(_.values.sorted)
 
   implicit def hNilGroupedAtomsEq[K <: HList, V](implicit eq: Eq[Atoms[K, V]]): Eq[GroupedAtoms[HNil, K, V]] =
     Eq.by[GroupedAtoms[HNil, K, V], Atoms[K, V]] { case atoms: Atoms[K, V] =>

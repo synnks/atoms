@@ -100,4 +100,38 @@ class AtomsTests extends AtomsCheckSuite {
       assert(atoms.groupBy[Int :: String :: HNil].groupBy[Boolean :: HNil] === expected)
     }
   }
+
+  test("ungroupBy HNil") {
+    forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
+      val groupedAtoms = atoms.groupBy[Int :: String :: HNil]
+
+      assert(groupedAtoms.ungroupBy[HNil] === groupedAtoms)
+    }
+  }
+
+  test("ungroupBy 1 level head of HList") {
+    forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
+      val groupedAtoms = atoms.groupBy[Int :: String :: HNil]
+      val expected     = atoms.groupBy[String :: HNil]
+
+      assert(groupedAtoms.ungroupBy[Int :: HNil] === expected)
+    }
+  }
+
+  test("ungroupBy complements groupBy") {
+    forAll { (atoms: Atoms[Int :: String :: Boolean :: HNil, Double]) =>
+      assert(atoms.groupBy[Int :: HNil].ungroupBy[Int :: HNil] === atoms)
+    }
+  }
+
+  test("ungroupBy associativity") {
+    forAll { (atoms: Atoms[Int :: String :: Boolean :: HNil, Double]) =>
+      val groupedAtoms = atoms.groupBy[Int :: String :: Boolean :: HNil]
+      val expected     = groupedAtoms.ungroupBy[Int :: String :: Boolean :: HNil]
+
+      assert(groupedAtoms.ungroupBy[Int :: HNil].ungroupBy[String :: HNil].ungroupBy[Boolean :: HNil] === expected)
+      assert(groupedAtoms.ungroupBy[Int :: HNil].ungroupBy[String :: Boolean :: HNil] === expected)
+      assert(groupedAtoms.ungroupBy[Int :: String :: HNil].ungroupBy[Boolean :: HNil] === expected)
+    }
+  }
 }
