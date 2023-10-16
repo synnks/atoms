@@ -13,6 +13,7 @@ class AtomsTests extends AtomsCheckSuite {
       atom.map { case (keys, value) =>
         (keys.reverse, value |+| value)
       }
+
     forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
       val expected = Atoms(atoms.values.map(mapFunction(_)))
 
@@ -61,32 +62,42 @@ class AtomsTests extends AtomsCheckSuite {
   }
 
   test("groupBy all levels") {
-    forAll { (atoms: Atoms[Int :: String :: Double :: HNil, Boolean]) =>
+    forAll { (atoms: Atoms[Int :: String :: Boolean :: HNil, Double]) =>
       val expected = NestedAtoms(
         atoms.values
           .groupMapNem(_.keys.select[Int])(_.mapKeys(_.removeElem[Int]._2))
           .map(
             _.groupMapNem(_.keys.select[String])(_.mapKeys(_.removeElem[String]._2))
-              .map(_.groupMapNem(_.keys.select[Double])(_.mapKeys(_.removeElem[Double]._2)).map(Atoms(_)))
+              .map(_.groupMapNem(_.keys.select[Boolean])(_.mapKeys(_.removeElem[Boolean]._2)).map(Atoms(_)))
               .map(NestedAtoms(_))
           )
           .map(NestedAtoms(_))
       )
 
-      assert(atoms.groupBy[Int :: String :: Double :: HNil] === expected)
+      assert(atoms.groupBy[Int :: String :: Boolean :: HNil] === expected)
     }
   }
 
   test("groupBy skip levels") {
-    forAll { (atoms: Atoms[Int :: String :: Double :: HNil, Boolean]) =>
+    forAll { (atoms: Atoms[Int :: String :: Boolean :: HNil, Double]) =>
       val expected = NestedAtoms(
         atoms.values
           .groupMapNem(_.keys.select[Int])(_.mapKeys(_.removeElem[Int]._2))
-          .map(_.groupMapNem(_.keys.select[Double])(_.mapKeys(_.removeElem[Double]._2)).map(Atoms(_)))
+          .map(_.groupMapNem(_.keys.select[Boolean])(_.mapKeys(_.removeElem[Boolean]._2)).map(Atoms(_)))
           .map(NestedAtoms(_))
       )
 
-      assert(atoms.groupBy[Int :: Double :: HNil] === expected)
+      assert(atoms.groupBy[Int :: Boolean :: HNil] === expected)
+    }
+  }
+
+  test("groupBy associativity") {
+    forAll { (atoms: Atoms[Int :: String :: Boolean :: HNil, Double]) =>
+      val expected = atoms.groupBy[Int :: String :: Boolean :: HNil]
+
+      assert(atoms.groupBy[Int :: HNil].groupBy[String :: HNil].groupBy[Boolean :: HNil] === expected)
+      assert(atoms.groupBy[Int :: HNil].groupBy[String :: Boolean :: HNil] === expected)
+      assert(atoms.groupBy[Int :: String :: HNil].groupBy[Boolean :: HNil] === expected)
     }
   }
 }
