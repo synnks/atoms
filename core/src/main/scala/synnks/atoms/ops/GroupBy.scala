@@ -35,6 +35,6 @@ object GroupBy {
     override def apply(atoms: Atoms[K, V]): Out =
       atoms.values
         .groupByNem(_.keys.removeElem[LH]._1)
-        .map(values => groupBy(Atoms(values.map(_.mapKeys(_.removeElem[LH]._2)))))
+        .map(values => groupBy(Atoms(values).mapKeys(_.removeElem[LH]._2)))
   }
 }
