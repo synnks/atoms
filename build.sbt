@@ -6,6 +6,7 @@ ThisBuild / scalaVersion := "2.13.12"
 val CatsCoreVersion  = "2.10.0"
 val CatsLawsVersion  = "2.10.0"
 val ShapelessVersion = "2.3.10"
+val MUnitVersion     = "0.7.29"
 
 lazy val core = (project in file("core"))
   .settings(moduleName := "atoms")
@@ -13,8 +14,8 @@ lazy val core = (project in file("core"))
 ThisBuild / libraryDependencies ++= Seq(
   "org.typelevel" %% "cats-core"        % CatsCoreVersion,
   "com.chuusai"   %% "shapeless"        % ShapelessVersion,
-  "org.typelevel" %% "cats-laws"        % CatsLawsVersion % Test,
-  "org.typelevel" %% "discipline-munit" % "2.0.0-M3"      % Test
+  "org.scalameta" %% "munit"            % MUnitVersion % Test,
+  "org.scalameta" %% "munit-scalacheck" % MUnitVersion % Test
 )
 
 ThisBuild / scalacOptions ++= Seq(

@@ -1,14 +1,10 @@
-package synnks
+package synnks.atoms.util
 
 import cats.{ Eq, Order }
-import shapeless.*
+import shapeless.HList
+import synnks.atoms.{ Atom, Atoms }
 
-package object atoms {
-
-  implicit def hNilOrder: Order[HNil] = Order.allEqual
-
-  implicit def hConsOrder[H: Order, T <: HList: Order]: Order[H :: T] =
-    Order.whenEqual(Order.by(_.head), Order.by(_.tail))
+trait AtomsTestInstances {
 
   implicit def atomOrder[K <: HList: Order, V: Order]: Order[Atom[K, V]] = Order.whenEqual(
     Order.by(_.keys),

@@ -1,10 +1,9 @@
 package synnks.atoms
 
-import munit.ScalaCheckSuite
 import org.scalacheck.Prop.*
 import shapeless.*
 
-class AtomTests extends ScalaCheckSuite {
+class AtomTests extends AtomsCheckSuite {
 
   test("map") {
     def mapFunction[T <: HList](keys: Int :: T, value: String): (Int :: T, String) =
