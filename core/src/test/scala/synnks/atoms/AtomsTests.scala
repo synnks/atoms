@@ -37,7 +37,21 @@ class AtomsTests extends AtomsCheckSuite {
     }
   }
 
-  test("groupBy HNil") {
+  test("groupBy element outside of K compilation error") {
+    forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
+      assertNoDiff(
+        compileErrors("atoms.groupBy[Boolean :: HNil]"),
+        s"""|error:
+            |Cannot create GroupBy[Boolean :: shapeless.HNil, shapeless.HNil, Int :: String :: shapeless.HNil, Double] instance.
+            |Boolean :: shapeless.HNil contains elements that do not exist in Int :: String :: shapeless.HNil.
+            |atoms.groupBy[Boolean :: HNil]
+            |             ^
+            |""".stripMargin
+      )
+    }
+  }
+
+  test("groupBy[HNil] on Atoms[K, V] upcast to GroupedAtoms[HNil, K, V]") {
     forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
       val expected = atoms: GroupedAtoms[HNil, Int :: String :: HNil, Double]
 
@@ -48,7 +62,18 @@ class AtomsTests extends AtomsCheckSuite {
     }
   }
 
-  test("groupBy 1 level head of HList") {
+  test("groupBy[HNil] on GroupedAtoms idempotency") {
+    forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
+      val expected = atoms: GroupedAtoms[HNil, Int :: String :: HNil, Double]
+
+      assertTypedEquals[GroupedAtoms[HNil, Int :: String :: HNil, Double]](
+        expected.groupBy[HNil],
+        expected
+      )
+    }
+  }
+
+  test("groupBy head of K") {
     forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
       val expected = NestedAtoms(
         atoms.values
@@ -63,7 +88,7 @@ class AtomsTests extends AtomsCheckSuite {
     }
   }
 
-  test("groupBy 1 level mid element of HList") {
+  test("groupBy element of tail of K") {
     forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
       val expected = NestedAtoms(
         atoms.values
@@ -78,7 +103,7 @@ class AtomsTests extends AtomsCheckSuite {
     }
   }
 
-  test("groupBy all levels") {
+  test("groupBy[K]") {
     forAll { (atoms: Atoms[Int :: String :: Boolean :: HNil, Double]) =>
       val expected = NestedAtoms(
         atoms.values
@@ -98,7 +123,7 @@ class AtomsTests extends AtomsCheckSuite {
     }
   }
 
-  test("groupBy skip levels") {
+  test("groupBy skip elements of K") {
     forAll { (atoms: Atoms[Int :: String :: Boolean :: HNil, Double]) =>
       val expected = NestedAtoms(
         atoms.values
@@ -133,18 +158,43 @@ class AtomsTests extends AtomsCheckSuite {
     }
   }
 
-  // FIXME GroupedAtoms[G, K, V].ungroupBy[G] should return Atoms[K, V] instead of GroupedAtoms[HNil, K, V]
-  test("ungroupBy HNil Atoms".ignore) {
+  test("ungroupBy element outside of G compilation error") {
+    forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
+      val groupedAtoms = atoms.groupBy[Int :: String :: HNil]
+      assertNoDiff(
+        compileErrors("groupedAtoms.ungroupBy[Boolean :: HNil]"),
+        s"""|error:
+            |Cannot create UngroupBy[Boolean :: shapeless.HNil, Int :: String :: shapeless.HNil, shapeless.HNil, Double] instance.
+            |Boolean :: shapeless.HNil contains elements that do not exist in Int :: String :: shapeless.HNil.
+            |groupedAtoms.ungroupBy[Boolean :: HNil]
+            |                      ^
+            |""".stripMargin
+      )
+    }
+  }
+
+  test("ungroupBy[HNil] on Atoms idempotency") {
     forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
 
-      assertEquals(
+      assertTypedEquals[Atoms[Int :: String :: HNil, Double]](
         atoms.ungroupBy[HNil],
         atoms
       )
     }
   }
 
-  test("ungroupBy HNil GroupedAtoms") {
+  test("ungroupBy[HNil] on GroupedAtoms[HNil, K, V] downcast to Atoms[K, V]") {
+    forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
+      val groupedAtoms = atoms: GroupedAtoms[HNil, Int :: String :: HNil, Double]
+
+      assertTypedEquals[Atoms[Int :: String :: HNil, Double]](
+        groupedAtoms.ungroupBy[HNil],
+        atoms
+      )
+    }
+  }
+
+  test("ungroupBy[HNil] on GroupedAtoms[GH :: GT, K, V] idempotency") {
     forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
       val groupedAtoms = atoms.groupBy[Int :: String :: HNil]
 
@@ -155,7 +205,7 @@ class AtomsTests extends AtomsCheckSuite {
     }
   }
 
-  test("ungroupBy 1 level head of HList") {
+  test("ungroupBy head of G") {
     forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
       val groupedAtoms = atoms.groupBy[Int :: String :: HNil]
       val expected     = atoms.groupBy[String :: HNil]
@@ -167,43 +217,42 @@ class AtomsTests extends AtomsCheckSuite {
     }
   }
 
-  // FIXME GroupedAtoms[G, K, V].ungroupBy[G] should return Atoms[K, V] instead of GroupedAtoms[HNil, K, V]
-  test("ungroupBy all levels".ignore) {
+  test("ungroupBy[G]") {
     forAll { (atoms: Atoms[Int :: String :: Boolean :: HNil, Double]) =>
       val groupedAtoms = atoms.groupBy[Int :: String :: Boolean :: HNil]
 
-      assertTypedEquals(
+      assertTypedEquals[Atoms[Int :: String :: Boolean :: HNil, Double]](
+        // FIXME ungroupBy returns keys in reverse order
         groupedAtoms.ungroupBy[Int :: String :: Boolean :: HNil].mapKeys(_.reverse),
         atoms
       )
     }
   }
 
-  // FIXME GroupedAtoms[G, K, V].ungroupBy[G] should return Atoms[K, V] instead of GroupedAtoms[HNil, K, V]
-  test("ungroupBy complements groupBy".ignore) {
+  test("ungroupBy complements groupBy") {
     forAll { (atoms: Atoms[Int :: String :: Boolean :: HNil, Double]) =>
-      assertTypedEquals(
+      assertTypedEquals[Atoms[Int :: String :: Boolean :: HNil, Double]](
         atoms.groupBy[Int :: HNil].ungroupBy[Int :: HNil],
         atoms
       )
     }
   }
 
-  // FIXME GroupedAtoms[G, K, V].ungroupBy[G] should return Atoms[K, V] instead of GroupedAtoms[HNil, K, V]
-  test("ungroupBy associativity".ignore) {
+  test("ungroupBy associativity") {
     forAll { (atoms: Atoms[Int :: String :: Boolean :: HNil, Double]) =>
       val groupedAtoms = atoms.groupBy[Int :: String :: Boolean :: HNil]
       val expected     = groupedAtoms.ungroupBy[Int :: String :: Boolean :: HNil]
 
-      assertEquals(
+      // FIXME ungroupBy returns keys in reverse order
+      assertTypedEquals[Atoms[Boolean :: String :: Int :: HNil, Double]](
         groupedAtoms.ungroupBy[Int :: HNil].ungroupBy[String :: HNil].ungroupBy[Boolean :: HNil],
         expected
       )
-      assertEquals(
+      assertTypedEquals[Atoms[Boolean :: String :: Int :: HNil, Double]](
         groupedAtoms.ungroupBy[Int :: HNil].ungroupBy[String :: Boolean :: HNil],
         expected
       )
-      assertEquals(
+      assertTypedEquals[Atoms[Boolean :: String :: Int :: HNil, Double]](
         groupedAtoms.ungroupBy[Int :: String :: HNil].ungroupBy[Boolean :: HNil],
         expected
       )
