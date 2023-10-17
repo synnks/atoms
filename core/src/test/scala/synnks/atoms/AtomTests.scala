@@ -18,7 +18,7 @@ class AtomTests extends AtomsCheckSuite {
         Atom(keys, value)
       }
 
-      assert(atom.map(mapFunction(_, _)) == expected)
+      assertTypedEquals[Atom[String :: Int :: HNil, Double]](atom.map(mapFunction(_, _)), expected)
     }
   }
 
@@ -28,7 +28,7 @@ class AtomTests extends AtomsCheckSuite {
     forAll { (atom: Atom[Int :: String :: HNil, Double]) =>
       val expected = Atom(mapKeysFunction(atom.keys), atom.value)
 
-      assert(atom.mapKeys(mapKeysFunction(_)) == expected)
+      assertTypedEquals[Atom[String :: Int :: HNil, Double]](atom.mapKeys(mapKeysFunction(_)), expected)
     }
   }
 }
