@@ -6,7 +6,7 @@ import org.scalacheck.Prop.*
 import shapeless.*
 import shapeless.ops.hlist.Reverse
 
-class AtomsTests extends AtomsCheckSuite {
+class AtomsTests extends AtomsSuite {
 
   test("map") {
     def mapFunction[K <: HList, V: Semigroup](atom: Atom[K, V])(implicit reverse: Reverse[K]): Atom[reverse.Out, V] =
@@ -165,8 +165,23 @@ class AtomsTests extends AtomsCheckSuite {
         compileErrors("groupedAtoms.ungroupBy[Boolean :: HNil]"),
         s"""|error:
             |Cannot create UngroupBy[Boolean :: shapeless.HNil, Int :: String :: shapeless.HNil, shapeless.HNil, Double] instance.
-            |Boolean :: shapeless.HNil contains elements that do not exist in Int :: String :: shapeless.HNil.
+            |Boolean :: shapeless.HNil contains elements that do not exist in Int :: String :: shapeless.HNil, or do not appear in the same order.
             |groupedAtoms.ungroupBy[Boolean :: HNil]
+            |                      ^
+            |""".stripMargin
+      )
+    }
+  }
+
+  test("ungroupBy element of G out of order compilation error") {
+    forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
+      val groupedAtoms = atoms.groupBy[Int :: String :: HNil]
+      assertNoDiff(
+        compileErrors("groupedAtoms.ungroupBy[String :: Int :: HNil]"),
+        s"""|error:
+            |Cannot create UngroupBy[String :: Int :: shapeless.HNil, Int :: String :: shapeless.HNil, shapeless.HNil, Double] instance.
+            |String :: Int :: shapeless.HNil contains elements that do not exist in Int :: String :: shapeless.HNil, or do not appear in the same order.
+            |groupedAtoms.ungroupBy[String :: Int :: HNil]
             |                      ^
             |""".stripMargin
       )
@@ -225,6 +240,19 @@ class AtomsTests extends AtomsCheckSuite {
         // FIXME ungroupBy returns keys in reverse order
         groupedAtoms.ungroupBy[Int :: String :: Boolean :: HNil].mapKeys(_.reverse),
         atoms
+      )
+    }
+  }
+
+  test("ungroupBy skip elements of G") {
+    forAll { (atoms: Atoms[Int :: String :: Boolean :: HNil, Double]) =>
+      val groupedAtoms = atoms.groupBy[Int :: String :: Boolean :: HNil]
+      val expected = atoms.groupBy[String :: HNil]
+
+      assertTypedEquals[GroupedAtoms[String :: HNil, Int :: Boolean :: HNil, Double]](
+        // FIXME ungroupBy returns keys in reverse order
+        groupedAtoms.ungroupBy[Int :: Boolean :: HNil].mapKeys(_.reverse),
+        expected
       )
     }
   }

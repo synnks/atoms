@@ -6,7 +6,7 @@ import org.scalacheck.Prop.*
 import shapeless.*
 import shapeless.ops.hlist.Reverse
 
-class AtomTests extends AtomsCheckSuite {
+class AtomTests extends AtomsSuite {
 
   test("map") {
     def mapFunction[K <: HList, V: Semigroup](keys: K, value: V)(implicit reverse: Reverse[K]): (reverse.Out, V) =

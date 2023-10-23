@@ -4,7 +4,6 @@ ThisBuild / version      := "0.0.1"
 ThisBuild / scalaVersion := "2.13.12"
 
 val CatsCoreVersion  = "2.10.0"
-val CatsLawsVersion  = "2.10.0"
 val ShapelessVersion = "2.3.10"
 val MUnitVersion     = "1.0.0-M10"
 
