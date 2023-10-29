@@ -30,6 +30,5 @@ ThisBuild / scalacOptions ++= Seq(
   "-Wvalue-discard",
   "-Xlint:implicit-recursion",
   "-Xfatal-warnings",
-  "-Xsource:3",
-  "-Xlog-implicits"
+  "-Xsource:3"
 )
