@@ -19,6 +19,8 @@ sealed trait GroupedAtoms[G <: HList, K <: HList, V] {
   def ungroupBy[L <: HList](implicit ungroupBy: UngroupBy[L, G, K, V]): ungroupBy.Out = ungroupBy(this)
 
   def lookup[L <: HList](lookupKeys: L)(implicit lookup: Lookup[L, G, K, V]): lookup.Out = lookup(this, lookupKeys)
+
+  def unwrap(implicit unwrap: Unwrap[G, K, V]): unwrap.Out = unwrap(this)
 }
 
 object GroupedAtoms {
@@ -38,6 +40,8 @@ final case class Atoms[K <: HList, V](values: NonEmptyList[Atom[K, V]]) extends 
 }
 
 object Atoms {
+
+  implicit def semigroup[K <: HList, V]: Semigroup[Atoms[K, V]] = _ ++ _
 
   def apply[C[_]: Reducible, K <: HList, V](values: C[(K, V)]): Atoms[K, V] =
     Atoms(values.toNonEmptyList.map(Atom.apply[K, V].tupled))

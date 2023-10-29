@@ -73,7 +73,7 @@ class LookupTests extends AtomsSuite {
 
         val expectedLookupResult = expectedMap
           .lookup(lookupKey)
-          .map(_.transform((string, atoms) => Atoms(atoms).mapKeys(string :: _)).reduceLeft(_ ++ _))
+          .map(_.transform((string, atoms) => Atoms(atoms).mapKeys(string :: _)).reduce)
 
         assertTypedEquals[Option[Atoms[String :: HNil, Double]]](
           lookupResult,
