@@ -17,6 +17,8 @@ sealed trait GroupedAtoms[G <: HList, K <: HList, V] {
   def groupBy[L <: HList](implicit groupBy: GroupBy[L, G, K, V]): groupBy.Out = groupBy(this)
 
   def ungroupBy[L <: HList](implicit ungroupBy: UngroupBy[L, G, K, V]): ungroupBy.Out = ungroupBy(this)
+
+  def lookup[L <: HList](lookupKeys: L)(implicit lookup: Lookup[L, G, K, V]): lookup.Out = lookup(this, lookupKeys)
 }
 
 object GroupedAtoms {

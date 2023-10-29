@@ -21,7 +21,7 @@ class UngroupByTests extends AtomsSuite {
     }
   }
 
-  test("ungroupBy element of G out of order compilation error") {
+  test("ungroupBy elements of G out of order compilation error") {
     forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
       val groupedAtoms = atoms.groupBy[Int :: String :: HNil]
       assertNoDiff(
@@ -91,7 +91,7 @@ class UngroupByTests extends AtomsSuite {
     }
   }
 
-  test("ungroupBy skip elements of G") {
+  test("ungroupBy non consecutive elements of G") {
     forAll { (atoms: Atoms[Int :: String :: Boolean :: HNil, Double]) =>
       val groupedAtoms = atoms.groupBy[Int :: String :: Boolean :: HNil]
       val expected     = atoms.groupBy[String :: HNil]

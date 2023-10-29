@@ -92,7 +92,7 @@ class GroupByTests extends AtomsSuite {
     }
   }
 
-  test("groupBy skip elements of K") {
+  test("groupBy non consecutive elements of K") {
     forAll { (atoms: Atoms[Int :: String :: Boolean :: HNil, Double]) =>
       val expected = NestedAtoms(
         atoms.values
