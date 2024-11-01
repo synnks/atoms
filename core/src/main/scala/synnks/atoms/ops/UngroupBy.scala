@@ -55,7 +55,7 @@ object UngroupBy {
     }
   }
 
-  implicit def ungroupByInitDifferentHead[LH, LT <: HList, GH, GT <: HList, K <: HList, V, NG <: HList, NK <: HList](
+  implicit def ungroupByDifferentHead[LH, LT <: HList, GH, GT <: HList, K <: HList, V, NG <: HList, NK <: HList](
     implicit ungroupBy: UngroupBy[LH :: LT, GT, K, V] { type Out <: GroupedAtoms[NG, NK, V] }
   ): UngroupBy.Aux[LH :: LT, GH :: GT, K, V, GroupedAtoms[GH :: NG, NK, V]] = new UngroupBy[LH :: LT, GH :: GT, K, V] {
     override type Out = GroupedAtoms[GH :: NG, NK, V]

@@ -18,7 +18,8 @@ sealed trait GroupedAtoms[G <: HList, K <: HList, V] {
 
   def ungroupBy[L <: HList](implicit ungroupBy: UngroupBy[L, G, K, V]): ungroupBy.Out = ungroupBy(this)
 
-  def lookup[L <: HList](lookupKeys: L)(implicit lookup: Lookup[L, G, K, V]): lookup.Out = lookup(this, lookupKeys)
+  def lookup[L <: HList](lookupKeys: L)(implicit lookup: Lookup[L, G, K, V]): Option[lookup.Out] =
+    lookup(this, lookupKeys)
 
   def unwrap(implicit unwrap: Unwrap[G, K, V]): unwrap.Out = unwrap(this)
 }
@@ -30,8 +31,10 @@ object GroupedAtoms {
 
 final case class Atoms[K <: HList, V](values: NonEmptyList[Atom[K, V]]) extends GroupedAtoms[HNil, K, V] {
 
-  override def ++(other: GroupedAtoms[HNil, K, V]): Atoms[K, V] = other match {
-    case Atoms(values) => Atoms(this.values ::: values)
+  def ++(other: Atoms[K, V]): Atoms[K, V] = Atoms(this.values |+| other.values)
+
+  override def ++(other: GroupedAtoms[HNil, K, V]): GroupedAtoms[HNil, K, V] = other match {
+    case other: Atoms[K, V] => this ++ other
   }
 
   override def map[NK <: HList, NV](f: Atom[K, V] => Atom[NK, NV]): Atoms[NK, NV] = Atoms(values.map(f))

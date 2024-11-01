@@ -18,9 +18,7 @@ trait AtomsTestInstances {
     Eq.by(_.values.sorted)
 
   implicit def hNilGroupedAtomsEq[K <: HList, V](implicit eq: Eq[Atoms[K, V]]): Eq[GroupedAtoms[HNil, K, V]] =
-    Eq.by[GroupedAtoms[HNil, K, V], Atoms[K, V]] { case atoms: Atoms[K, V] =>
-      atoms
-    }
+    Eq.by { case atoms: Atoms[K, V] => atoms }
 
   implicit def hConsGroupedAtomsEq[GH, GT <: HList, K <: HList, V](implicit
     eq: Eq[GroupedAtoms[GT, K, V]]
@@ -42,7 +40,7 @@ trait AtomsTestInstances {
   implicit def atomsArbitrary[K <: HList, V](implicit A: Arbitrary[Atom[K, V]]): Arbitrary[Atoms[K, V]] = Arbitrary(
     for {
       head <- A.arbitrary
-      tail <- implicitly[Arbitrary[List[Atom[K, V]]]].arbitrary
+      tail <- Arbitrary.arbitrary[List[Atom[K, V]]]
     } yield Atoms(NonEmptyList(head, tail))
   )
 }

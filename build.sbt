@@ -1,11 +1,10 @@
 ThisBuild / organization := "com.synnks"
-ThisBuild / version      := "0.0.1"
 
-ThisBuild / scalaVersion := "2.13.12"
+ThisBuild / scalaVersion := "2.13.15"
 
-val CatsCoreVersion  = "2.10.0"
-val ShapelessVersion = "2.3.10"
-val MUnitVersion     = "1.0.0-M10"
+val CatsCoreVersion  = "2.12.0"
+val ShapelessVersion = "2.3.12"
+val MUnitVersion     = "1.0.0"
 
 lazy val core = (project in file("core"))
   .settings(moduleName := "atoms")

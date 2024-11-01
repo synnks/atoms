@@ -11,7 +11,7 @@ import scala.annotation.implicitNotFound
 sealed trait Lookup[L <: HList, G <: HList, K <: HList, V] {
   type Out
 
-  def apply(groupedAtoms: GroupedAtoms[G, K, V], lookupKeys: L): Out
+  def apply(groupedAtoms: GroupedAtoms[G, K, V], lookupKeys: L): Option[Out]
 }
 
 object Lookup {
@@ -23,22 +23,23 @@ object Lookup {
 
   implicit def lookupHNil[G <: HList, K <: HList, V](implicit
     ungroupBy: UngroupBy[G, G, K, V]
-  ): Lookup.Aux[HNil, G, K, V, Option[ungroupBy.Out]] =
+  ): Lookup.Aux[HNil, G, K, V, ungroupBy.Out] =
     new Lookup[HNil, G, K, V] {
-      override type Out = Option[ungroupBy.Out]
+      override type Out = ungroupBy.Out
 
-      override def apply(groupedAtoms: GroupedAtoms[G, K, V], lookupKeys: HNil): Out =
+      override def apply(groupedAtoms: GroupedAtoms[G, K, V], lookupKeys: HNil): Option[Out] =
         Some(groupedAtoms.ungroupBy[G](ungroupBy))
     }
 
-  implicit def lookupSameHead[LH, LT <: HList, GT <: HList, K <: HList, V, AtomsRes](implicit
-    lookup: Lookup.Aux[LT, GT, K, V, Option[AtomsRes]]
-  ): Lookup.Aux[LH :: LT, LH :: GT, K, V, Option[AtomsRes]] = new Lookup[LH :: LT, LH :: GT, K, V] {
-    override type Out = Option[AtomsRes]
+  implicit def lookupSameHead[LH, LT <: HList, GT <: HList, K <: HList, V](implicit
+    lookup: Lookup[LT, GT, K, V]
+  ): Lookup.Aux[LH :: LT, LH :: GT, K, V, lookup.Out] = new Lookup[LH :: LT, LH :: GT, K, V] {
+    override type Out = lookup.Out
 
-    override def apply(groupedAtoms: GroupedAtoms[LH :: GT, K, V], lookupKeys: LH :: LT): Out = groupedAtoms match {
-      case NestedAtoms(groupedAtoms) => groupedAtoms.lookup(lookupKeys.head).flatMap(_.lookup(lookupKeys.tail))
-    }
+    override def apply(groupedAtoms: GroupedAtoms[LH :: GT, K, V], lookupKeys: LH :: LT): Option[Out] =
+      groupedAtoms match {
+        case NestedAtoms(groupedAtoms) => groupedAtoms.lookup(lookupKeys.head).flatMap(_.lookup(lookupKeys.tail))
+      }
   }
 
   implicit def lookupDifferentHead[LH, LT <: HList, GH, GT <: HList, K <: HList, V](implicit
@@ -47,7 +48,7 @@ object Lookup {
   ): Lookup.Aux[LH :: LT, GH :: GT, K, V, lookup.Out] = new Lookup[LH :: LT, GH :: GT, K, V] {
     override type Out = lookup.Out
 
-    override def apply(groupedAtoms: GroupedAtoms[GH :: GT, K, V], lookupKeys: LH :: LT): Out =
+    override def apply(groupedAtoms: GroupedAtoms[GH :: GT, K, V], lookupKeys: LH :: LT): Option[Out] =
       groupedAtoms.ungroupBy[GH :: HNil].lookup(lookupKeys)
   }
 }
