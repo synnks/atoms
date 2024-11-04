@@ -5,9 +5,10 @@ import synnks.atoms.*
 
 import scala.annotation.implicitNotFound
 
-@implicitNotFound(
-  "Cannot create Lookup[${L}, ${G}, ${K}, ${V}] instance.\n${L} contains elements that do not exist in ${G}, or do not appear in the same order."
-)
+@implicitNotFound("""
+Cannot create Lookup[${L}, ${G}, ${K}, ${V}] instance.
+${L} contains elements that do not exist in ${G}, or do not appear in the same order.
+""")
 sealed trait Lookup[L <: HList, G <: HList, K <: HList, V] {
   type Out
 

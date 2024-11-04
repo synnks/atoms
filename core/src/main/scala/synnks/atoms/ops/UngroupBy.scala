@@ -6,9 +6,10 @@ import synnks.atoms.*
 
 import scala.annotation.implicitNotFound
 
-@implicitNotFound(
-  "Cannot create UngroupBy[${L}, ${G}, ${K}, ${V}] instance.\n${L} contains elements that do not exist in ${G}, or do not appear in the same order."
-)
+@implicitNotFound("""
+Cannot create UngroupBy[${L}, ${G}, ${K}, ${V}] instance.
+${L} contains elements that do not exist in ${G}, or do not appear in the same order.
+""")
 sealed trait UngroupBy[L <: HList, G <: HList, K <: HList, V] {
   type Out
 

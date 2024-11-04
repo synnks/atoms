@@ -13,12 +13,11 @@ trait HListTestInstances {
 
   implicit val hNilArbitrary: Arbitrary[HNil] = Arbitrary(Gen.const(HNil))
 
-  implicit def hConsArbitrary[H, T <: HList](implicit
-    hArbitrary: Arbitrary[H],
-    tArbitrary: Arbitrary[T]
-  ): Arbitrary[H :: T] = Arbitrary(for {
-    h <- hArbitrary.arbitrary
-    t <- tArbitrary.arbitrary
-  } yield h :: t)
+  implicit def hConsArbitrary[H: Arbitrary, T <: HList: Arbitrary]: Arbitrary[H :: T] = Arbitrary {
+    for {
+      h <- Arbitrary.arbitrary[H]
+      t <- Arbitrary.arbitrary[T]
+    } yield h :: t
+  }
 
 }

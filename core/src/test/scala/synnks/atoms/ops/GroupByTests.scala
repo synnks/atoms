@@ -11,8 +11,10 @@ class GroupByTests extends AtomsSuite {
       assertNoDiff(
         compileErrors("atoms.groupBy[Boolean :: HNil]"),
         s"""|error:
+            |
             |Cannot create GroupBy[Boolean :: shapeless.HNil, shapeless.HNil, Int :: String :: shapeless.HNil, Double] instance.
             |Boolean :: shapeless.HNil contains elements that do not exist in Int :: String :: shapeless.HNil.
+            |
             |atoms.groupBy[Boolean :: HNil]
             |             ^
             |""".stripMargin

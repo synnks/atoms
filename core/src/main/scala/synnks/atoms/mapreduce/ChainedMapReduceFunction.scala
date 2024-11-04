@@ -1,8 +1,13 @@
 package synnks.atoms.mapreduce
 
 import shapeless.*
+import synnks.atoms.mapreduce.ops.*
 
-sealed trait ChainedMapReduceFunction[K <: HList, V <: HList] extends Product with Serializable
+sealed trait ChainedMapReduceFunction[K <: HList, V <: HList] extends Product with Serializable {
+  def andThen[KH, VH, `VH+1`](mapReduceFn: MapReduceFunction[KH, `VH+1`, VH])(implicit
+    andThen: AndThen[K, V, KH, VH, `VH+1`]
+  ): andThen.Out = andThen(this, mapReduceFn)
+}
 
 object ChainedMapReduceFunction {
 
