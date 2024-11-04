@@ -4,9 +4,14 @@ import shapeless.*
 import synnks.atoms.mapreduce.ops.*
 
 sealed trait ChainedMapReduceFunction[K <: HList, V <: HList] extends Product with Serializable {
+
   def andThen[KH, VH, `VH+1`](mapReduceFn: MapReduceFunction[KH, `VH+1`, VH])(implicit
     andThen: AndThen[K, V, KH, VH, `VH+1`]
   ): andThen.Out = andThen(this, mapReduceFn)
+
+  def compose[KL, `VL-1`, VL](mapReduceFn: MapReduceFunction[KL, VL, `VL-1`])(implicit
+    compose: Compose[K, V, KL, `VL-1`, VL]
+  ): compose.Out = compose(this, mapReduceFn)
 }
 
 object ChainedMapReduceFunction {
