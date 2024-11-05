@@ -3,7 +3,7 @@ package synnks.atoms.util
 import cats.data.NonEmptyList
 import cats.{ Eq, Order }
 import cats.syntax.all.*
-import org.scalacheck.Arbitrary
+import org.scalacheck.{ Arbitrary, Cogen }
 import shapeless.*
 import synnks.atoms.{ Atom, Atoms, GroupedAtoms, NestedAtoms }
 
@@ -43,4 +43,10 @@ trait AtomsTestInstances {
       tail <- Arbitrary.arbitrary[List[Atom[K, V]]]
     } yield Atoms(NonEmptyList(head, tail))
   )
+
+  implicit def atomCogen[K <: HList: Cogen, V: Cogen]: Cogen[Atom[K, V]] = Cogen { (seed, atom) =>
+    Cogen[(K, V)].perturb(seed, (atom.keys, atom.value))
+  }
+
+  implicit def atomsCogen[K <: HList: Cogen, V: Cogen]: Cogen[Atoms[K, V]] = Cogen.it(_.values.iterator)
 }

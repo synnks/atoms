@@ -1,7 +1,7 @@
 package synnks.atoms.util
 
 import cats.Order
-import org.scalacheck.{ Arbitrary, Gen }
+import org.scalacheck.{ Arbitrary, Cogen, Gen }
 import shapeless.*
 
 trait HListTestInstances {
@@ -20,4 +20,9 @@ trait HListTestInstances {
     } yield h :: t
   }
 
+  implicit val hNilCogen: Cogen[HNil] = Cogen(_ => 0L)
+
+  implicit def hConsCogen[H: Cogen, T <: HList: Cogen]: Cogen[H :: T] = Cogen { (seed, hList) =>
+    Cogen[(H, T)].perturb(seed, (hList.head, hList.tail))
+  }
 }

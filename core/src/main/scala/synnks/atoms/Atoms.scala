@@ -4,6 +4,7 @@ import cats.{ Reducible, Semigroup }
 import cats.data.{ NonEmptyList, NonEmptyMap }
 import cats.syntax.all.*
 import shapeless.*
+import synnks.atoms.mapreduce.ChainedMapReduceFunction
 import synnks.atoms.ops.*
 
 sealed trait GroupedAtoms[G <: HList, K <: HList, V] {
@@ -22,6 +23,10 @@ sealed trait GroupedAtoms[G <: HList, K <: HList, V] {
     lookup(this, lookupKeys)
 
   def unwrap(implicit unwrap: Unwrap[G, K, V]): unwrap.Out = unwrap(this)
+
+  def mapReduce[L <: HList](chainedMapReduceFunction: ChainedMapReduceFunction[G, L])(implicit
+    mapReduce: MapReduce[L, G, K, V]
+  ): mapReduce.Out = mapReduce(this, chainedMapReduceFunction)
 }
 
 object GroupedAtoms {
@@ -39,7 +44,7 @@ final case class Atoms[K <: HList, V](values: NonEmptyList[Atom[K, V]]) extends 
 
   override def map[NK <: HList, NV](f: Atom[K, V] => Atom[NK, NV]): Atoms[NK, NV] = Atoms(values.map(f))
 
-  override def mapKeys[NK <: HList](f: K => NK): Atoms[NK, V] = Atoms(values.map(_.mapKeys(f)))
+  override def mapKeys[NK <: HList](f: K => NK): Atoms[NK, V] = map(_.mapKeys(f))
 }
 
 object Atoms {
