@@ -9,7 +9,8 @@ import synnks.atoms.util.*
 trait AtomsSuite
     extends ScalaCheckSuite
     with HListTestInstances
-    with AtomsTestInstances {
+    with AtomsTestInstances
+    with MapReduceFunctionTestInstances {
 
   override protected def scalaCheckTestParameters: Test.Parameters = Test.Parameters.defaultVerbose
 

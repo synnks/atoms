@@ -2,8 +2,14 @@ package synnks.atoms.mapreduce
 
 import cats.Semigroup
 import shapeless.*
+import synnks.atoms.mapreduce.ops.*
 
-sealed trait MapReduceFunction[K <: HList, IR <: HList, R] extends Product with Serializable
+sealed trait MapReduceFunction[K <: HList, IR <: HList, R] extends Product with Serializable {
+
+  def andThen[K2 <: HList, IR2 <: HList, R2](g: MapReduceFunction[K2, IR2, R2])(implicit
+    andThen: AndThen[K, IR, R, K2, IR2, R2]
+  ): andThen.Out = andThen(this, g)
+}
 
 object MapReduceFunction {
 

@@ -87,7 +87,7 @@ class LookupTests extends AtomsSuite {
     }
   }
 
-  test("lookup missed using one type of G") {
+  test("lookup misses using one type of G") {
     implicit val positiveIntArbitrary: Arbitrary[Int] = Arbitrary(Gen.posNum[Int])
 
     forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
