@@ -29,7 +29,7 @@ class AndThenTests extends AtomsSuite {
   }
 
   test("f andThen identity") {
-    forAll { (f: MapReduceFunction[Int :: HNil, String :: HNil, Boolean], g: MapReduceFunction[HNil, HNil, Double]) =>
+    forAll { (f: MapReduceFunction[Int :: HNil, String :: HNil, Boolean], g: MapReduceFunction[HNil, HNil, ?]) =>
       assertTypedEquals[MapReduceFunction[Int :: HNil, String :: HNil, Boolean]](f andThen g, f)
     }
   }
@@ -97,6 +97,54 @@ class AndThenTests extends AtomsSuite {
         assertTypedEquals[MapReduceFunction[Float :: Double :: Int :: HNil, Long :: Boolean :: String :: HNil, Byte]](
           (f andThen g) andThen h,
           f andThen (g andThen h)
+        )
+    }
+  }
+
+  test("compose between incompatible functions compilation error") {
+    forAll {
+      (
+        f: MapReduceFunction[Int :: HNil, String :: HNil, Boolean],
+        g: MapReduceFunction[Double :: HNil, Long :: HNil, Unit]
+      ) =>
+        assertNoDiff(
+          compileErrors("g.compose(f)"),
+          s"""
+             |error:
+             |
+             |Cannot create AndThen[Int :: shapeless.HNil, String :: shapeless.HNil, Boolean, Double :: shapeless.HNil, Long :: shapeless.HNil, Unit] instance.
+             |The last element of the `IR2` type of the second MapReduceFunction[..., Long :: shapeless.HNil, ...] does not match the type of the result from the first MapReduceFunction[..., ..., Boolean].
+             |
+             |g.compose(f)
+             |         ^
+             |""".stripMargin
+        )
+    }
+  }
+
+  test("compose complements andThen") {
+    forAll {
+      (
+        f: MapReduceFunction[Int :: HNil, String :: HNil, Boolean],
+        g: MapReduceFunction[Double :: HNil, Boolean :: HNil, Long]
+      ) =>
+        assertTypedEquals[MapReduceFunction[Double :: Int :: HNil, Boolean :: String :: HNil, Long]](
+          f andThen g,
+          g compose f
+        )
+    }
+  }
+
+  test("compose associativity") {
+    forAll {
+      (
+        f: MapReduceFunction[Int :: HNil, String :: HNil, Boolean],
+        g: MapReduceFunction[Double :: HNil, Boolean :: HNil, Long],
+        h: MapReduceFunction[Float :: HNil, Long :: HNil, Byte]
+      ) =>
+        assertTypedEquals[MapReduceFunction[Float :: Double :: Int :: HNil, Long :: Boolean :: String :: HNil, Byte]](
+          (h compose g) compose f,
+          h compose (g compose f)
         )
     }
   }

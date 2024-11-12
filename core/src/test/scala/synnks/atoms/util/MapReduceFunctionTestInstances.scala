@@ -11,7 +11,7 @@ trait MapReduceFunctionTestInstances {
     Eq.fromUniversalEquals
 
   implicit def mapReduceFunctionUnitArbitrary[R]: Arbitrary[MapReduceFunction[HNil, HNil, R]] =
-    Arbitrary(Gen.const(MapReduceFunction.Unit()))
+    Arbitrary(Gen.const(MapReduceFunction.Unit))
 
   implicit def mapReduceFunctionArbitrary[KH: Cogen, KT <: HList, IRH: Cogen, IRT <: HList, R: Cogen: Arbitrary](
     implicit A: Arbitrary[MapReduceFunction[KT, IRT, IRH]]
