@@ -4,10 +4,9 @@ import cats.{ Reducible, Semigroup }
 import cats.data.{ NonEmptyList, NonEmptyMap }
 import cats.syntax.all.*
 import shapeless.*
-import synnks.atoms.mapreduce.ChainedMapReduceFunction
 import synnks.atoms.ops.*
 
-sealed trait GroupedAtoms[G <: HList, K <: HList, V] {
+sealed trait GroupedAtoms[G <: HList, K <: HList, V] extends Product with Serializable {
 
   def ++(other: GroupedAtoms[G, K, V]): GroupedAtoms[G, K, V]
 
@@ -23,10 +22,6 @@ sealed trait GroupedAtoms[G <: HList, K <: HList, V] {
     lookup(this, lookupKeys)
 
   def unwrap(implicit unwrap: Unwrap[G, K, V]): unwrap.Out = unwrap(this)
-
-  def mapReduce[L <: HList](chainedMapReduceFunction: ChainedMapReduceFunction[G, L])(implicit
-    mapReduce: MapReduce[L, G, K, V]
-  ): mapReduce.Out = mapReduce(this, chainedMapReduceFunction)
 }
 
 object GroupedAtoms {

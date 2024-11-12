@@ -1,11 +1,11 @@
 package synnks.atoms
 
+import cats.Semigroup
 import shapeless.*
 
 package object mapreduce {
 
-  implicit def toChainedMapReduceFunction[KH, VH, `VH+1`](
-    mapReduceFn: MapReduceFunction[KH, `VH+1`, VH]
-  ): ChainedMapReduceFunction[KH :: HNil, VH :: `VH+1` :: HNil] =
-    ChainedMapReduceFunction.Last(mapReduceFn)
+  implicit def toMapReduceFunction[KH, IRH, R: Semigroup](
+    f: (KH, IRH) => R
+  ): MapReduceFunction[KH :: HNil, IRH :: HNil, R] = MapReduceFunction(f)
 }
