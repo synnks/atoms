@@ -53,7 +53,8 @@ object AndThen {
         f: MapReduceFunction[K1, IR1, R1],
         g: MapReduceFunction[K2H :: K2T, IR2H :: IR2T, R2]
       ): Out = g match {
-        case g: MapReduceFunction.Chain[K2H, K2T, IR2H, IR2T, R2] => MapReduceFunction(g.map, g.reduce, andThen(f, g.next))
+        case g: MapReduceFunction.Chain[K2H, K2T, IR2H, IR2T, R2] =>
+          MapReduceFunction(g.map, g.reduce, andThen(f, g.next))
       }
     }
 }

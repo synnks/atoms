@@ -22,6 +22,8 @@ sealed trait GroupedAtoms[G <: HList, K <: HList, V] extends Product with Serial
     lookup(this, lookupKeys)
 
   def unwrap(implicit unwrap: Unwrap[G, K, V]): unwrap.Out = unwrap(this)
+
+  def mapReduce[R]: MapReduce.PartiallyApplied[G, K, V, R] = new MapReduce.PartiallyApplied(this)
 }
 
 object GroupedAtoms {

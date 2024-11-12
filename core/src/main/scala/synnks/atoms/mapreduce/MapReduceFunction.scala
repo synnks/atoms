@@ -37,6 +37,7 @@ object MapReduceFunction {
     map: (K, IR) => R
   ): MapReduceFunction[K :: HNil, IR :: HNil, R] = Chain(map, Semigroup[R].combine, Unit)
 
-  implicit def mapReduceFunctionOps[K <: HList, IR <: HList, R](f: MapReduceFunction[K, IR, R]): MapReduceFunctionOps[K, IR, R] =
-    new MapReduceFunctionOps(f)
+  implicit def mapReduceFunctionOps[K <: HList, IR <: HList, R](
+    f: MapReduceFunction[K, IR, R]
+  ): MapReduceFunctionOps[K, IR, R] = new MapReduceFunctionOps(f)
 }

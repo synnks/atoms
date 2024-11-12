@@ -29,7 +29,7 @@ trait AtomsTestInstances {
 
   implicit def atomArbitrary[K <: HList: Arbitrary, V: Arbitrary]: Arbitrary[Atom[K, V]] = Arbitrary {
     for {
-      keys <- Arbitrary.arbitrary[K]
+      keys  <- Arbitrary.arbitrary[K]
       value <- Arbitrary.arbitrary[V]
     } yield Atom(keys, value)
   }
