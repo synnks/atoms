@@ -12,8 +12,10 @@ class UngroupByTests extends AtomsSuite {
       assertNoDiff(
         compileErrors("groupedAtoms.ungroupBy[Boolean :: HNil]"),
         s"""|error:
+            |
             |Cannot create UngroupBy[Boolean :: shapeless.HNil, Int :: String :: shapeless.HNil, shapeless.HNil, Double] instance.
             |Boolean :: shapeless.HNil contains elements that do not exist in Int :: String :: shapeless.HNil, or do not appear in the same order.
+            |
             |groupedAtoms.ungroupBy[Boolean :: HNil]
             |                      ^
             |""".stripMargin
@@ -27,8 +29,10 @@ class UngroupByTests extends AtomsSuite {
       assertNoDiff(
         compileErrors("groupedAtoms.ungroupBy[String :: Int :: HNil]"),
         s"""|error:
+            |
             |Cannot create UngroupBy[String :: Int :: shapeless.HNil, Int :: String :: shapeless.HNil, shapeless.HNil, Double] instance.
             |String :: Int :: shapeless.HNil contains elements that do not exist in Int :: String :: shapeless.HNil, or do not appear in the same order.
+            |
             |groupedAtoms.ungroupBy[String :: Int :: HNil]
             |                      ^
             |""".stripMargin

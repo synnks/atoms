@@ -3,7 +3,7 @@ package synnks.atoms.util
 import cats.data.NonEmptyList
 import cats.{ Eq, Order }
 import cats.syntax.all.*
-import org.scalacheck.Arbitrary
+import org.scalacheck.{ Arbitrary, Cogen }
 import shapeless.*
 import synnks.atoms.{ Atom, Atoms, GroupedAtoms, NestedAtoms }
 
@@ -27,20 +27,23 @@ trait AtomsTestInstances {
       case (NestedAtoms(x), NestedAtoms(y)) => x === y
     }
 
-  implicit def atomArbitrary[K <: HList, V](implicit
-    kArbitrary: Arbitrary[K],
-    vArbitrary: Arbitrary[V]
-  ): Arbitrary[Atom[K, V]] = Arbitrary(
+  implicit def atomArbitrary[K <: HList: Arbitrary, V: Arbitrary]: Arbitrary[Atom[K, V]] = Arbitrary {
     for {
-      keys  <- kArbitrary.arbitrary
-      value <- vArbitrary.arbitrary
+      keys  <- Arbitrary.arbitrary[K]
+      value <- Arbitrary.arbitrary[V]
     } yield Atom(keys, value)
-  )
+  }
 
-  implicit def atomsArbitrary[K <: HList, V](implicit A: Arbitrary[Atom[K, V]]): Arbitrary[Atoms[K, V]] = Arbitrary(
+  implicit def atomsArbitrary[K <: HList, V](implicit A: Arbitrary[Atom[K, V]]): Arbitrary[Atoms[K, V]] = Arbitrary {
     for {
-      head <- A.arbitrary
+      head <- Arbitrary.arbitrary[Atom[K, V]]
       tail <- Arbitrary.arbitrary[List[Atom[K, V]]]
     } yield Atoms(NonEmptyList(head, tail))
-  )
+  }
+
+  implicit def atomCogen[K <: HList: Cogen, V: Cogen]: Cogen[Atom[K, V]] = Cogen { (seed, atom) =>
+    Cogen[(K, V)].perturb(seed, (atom.keys, atom.value))
+  }
+
+  implicit def atomsCogen[K <: HList: Cogen, V: Cogen]: Cogen[Atoms[K, V]] = Cogen.it(_.values.iterator)
 }

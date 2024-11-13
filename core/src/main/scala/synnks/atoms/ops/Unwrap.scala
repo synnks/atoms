@@ -6,9 +6,9 @@ import synnks.atoms.*
 
 import scala.annotation.implicitNotFound
 
-@implicitNotFound(
-  "Cannot create Unwrap[${G}, ${K}, ${V}] instance.\n"
-)
+@implicitNotFound("""
+Cannot create Unwrap[${G}, ${K}, ${V}] instance.
+""")
 sealed trait Unwrap[G <: HList, K <: HList, V] {
   type Out
 

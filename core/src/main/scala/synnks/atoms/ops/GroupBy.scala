@@ -7,9 +7,10 @@ import synnks.atoms.*
 
 import scala.annotation.implicitNotFound
 
-@implicitNotFound(
-  "Cannot create GroupBy[${L}, ${G}, ${K}, ${V}] instance.\n${L} contains elements that do not exist in ${K}."
-)
+@implicitNotFound("""
+Cannot create GroupBy[${L}, ${G}, ${K}, ${V}] instance.
+${L} contains elements that do not exist in ${K}.
+""")
 sealed trait GroupBy[L <: HList, G <: HList, K <: HList, V] {
   type Out
 

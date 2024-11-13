@@ -13,8 +13,10 @@ class LookupTests extends AtomsSuite {
       assertNoDiff(
         compileErrors("groupedAtoms.lookup(true :: HNil)"),
         s"""|error:
+            |
             |Cannot create Lookup[Boolean :: shapeless.HNil, Int :: String :: shapeless.HNil, shapeless.HNil, Double] instance.
             |Boolean :: shapeless.HNil contains elements that do not exist in Int :: String :: shapeless.HNil, or do not appear in the same order.
+            |
             |groupedAtoms.lookup(true :: HNil)
             |                   ^
             |""".stripMargin
@@ -28,8 +30,10 @@ class LookupTests extends AtomsSuite {
       assertNoDiff(
         compileErrors("groupedAtoms.lookup(\"Hello\" :: 1 :: HNil)"),
         s"""|error:
+            |
             |Cannot create Lookup[String :: Int :: shapeless.HNil, Int :: String :: shapeless.HNil, shapeless.HNil, Double] instance.
             |String :: Int :: shapeless.HNil contains elements that do not exist in Int :: String :: shapeless.HNil, or do not appear in the same order.
+            |
             |groupedAtoms.lookup("Hello" :: 1 :: HNil)
             |                   ^
             |""".stripMargin
@@ -60,7 +64,7 @@ class LookupTests extends AtomsSuite {
     }
   }
 
-  test("lookup hits using one type of G") {
+  test("lookup hits using head of G") {
     forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
       val expectedMap  = atoms.values
         .groupMapNem(_.keys.select[Int])(_.mapKeys(_.removeElem[Int]._2))
@@ -83,11 +87,52 @@ class LookupTests extends AtomsSuite {
     }
   }
 
-  test("lookup missed using one type of G") {
+  test("lookup misses using head of G") {
     implicit val positiveIntArbitrary: Arbitrary[Int] = Arbitrary(Gen.posNum[Int])
 
     forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
       val groupedAtoms = atoms.groupBy[Int :: String :: HNil]
+
+      forAll(Gen.negNum[Int]) { negativeInt =>
+        val lookupKeys   = negativeInt :: HNil
+        val lookupResult = groupedAtoms.lookup(lookupKeys)
+
+        assertTypedEquals[Option[Atoms[String :: HNil, Double]]](
+          lookupResult,
+          None
+        )
+      }
+    }
+  }
+
+  test("lookup hits using non-head element of G") {
+    forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
+      val expectedMap  = atoms.values
+        .groupMapNem(_.keys.select[Int])(_.mapKeys(_.removeElem[Int]._2))
+        .map(_.groupMapNem(_.keys.select[String])(_.mapKeys(_.removeElem[String]._2)))
+      val groupedAtoms = atoms.groupBy[String :: Int :: HNil]
+
+      forAll(Gen.oneOf(atoms.values.toList)) { randomAtom =>
+        val lookupKey    = randomAtom.keys.select[Int]
+        val lookupResult = groupedAtoms.lookup(lookupKey :: HNil)
+
+        val expectedLookupResult = expectedMap
+          .lookup(lookupKey)
+          .map(_.transform((string, atoms) => Atoms(atoms).mapKeys(string :: _)).reduce)
+
+        assertTypedEquals[Option[Atoms[String :: HNil, Double]]](
+          lookupResult,
+          expectedLookupResult
+        )
+      }
+    }
+  }
+
+  test("lookup misses using non-head element of G") {
+    implicit val positiveIntArbitrary: Arbitrary[Int] = Arbitrary(Gen.posNum[Int])
+
+    forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
+      val groupedAtoms = atoms.groupBy[String :: Int :: HNil]
 
       forAll(Gen.negNum[Int]) { negativeInt =>
         val lookupKeys   = negativeInt :: HNil

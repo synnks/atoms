@@ -4,9 +4,13 @@ import cats.Eq
 import cats.syntax.all.*
 import munit.{ Location, ScalaCheckSuite }
 import org.scalacheck.Test
-import synnks.atoms.util.{ AtomsTestInstances, HListTestInstances }
+import synnks.atoms.util.*
 
-trait AtomsSuite extends ScalaCheckSuite with HListTestInstances with AtomsTestInstances {
+trait AtomsSuite
+    extends ScalaCheckSuite
+    with HListTestInstances
+    with AtomsTestInstances
+    with MapReduceFunctionTestInstances {
 
   override protected def scalaCheckTestParameters: Test.Parameters = Test.Parameters.defaultVerbose
 
