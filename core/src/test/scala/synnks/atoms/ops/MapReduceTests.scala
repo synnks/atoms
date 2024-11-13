@@ -29,7 +29,15 @@ class MapReduceTests extends AtomsSuite {
     }
   }
 
-  test("mapReduce") {
+  test("mapReduce Atoms[K, V]") {
+    forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
+      val result = atoms.mapReduce(MapReduceFunction.unit)
+
+      assertTypedEquals[Atoms[Int :: String :: HNil, Double]](result, atoms)
+    }
+  }
+
+  test("mapReduce GroupedAtoms[G, K, V]") {
     def prependKey[K <: HList, V, A](head: A, atoms: Atoms[K, V]): Atoms[A :: K, V] = atoms.mapKeys(head :: _)
 
     forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
@@ -42,5 +50,4 @@ class MapReduceTests extends AtomsSuite {
       assertTypedEquals[Atoms[Int :: String :: HNil, Double]](result, atoms)
     }
   }
-
 }

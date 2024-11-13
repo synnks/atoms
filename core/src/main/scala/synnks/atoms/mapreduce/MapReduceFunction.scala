@@ -6,7 +6,6 @@ import shapeless.*
 sealed trait MapReduceFunction[K <: HList, IR <: HList, +R] extends Product with Serializable
 
 object MapReduceFunction {
-
   import synnks.atoms.mapreduce.syntax.*
 
   private[atoms] case object Unit extends MapReduceFunction[HNil, HNil, Nothing]
@@ -22,6 +21,8 @@ object MapReduceFunction {
     reduce: (R, R) => R,
     next: MapReduceFunction[KT, IRT, IRH]
   ): MapReduceFunction[KH :: KT, IRH :: IRT, R] = Chain(map, reduce, next)
+
+  val unit: MapReduceFunction[HNil, HNil, Nothing] = Unit
 
   def apply[KH, KT <: HList, IRH, IRT <: HList, R: Semigroup](
     map: (KH, IRH) => R,
