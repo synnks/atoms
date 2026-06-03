@@ -2,8 +2,9 @@ ThisBuild / organization := "com.synnks"
 
 ThisBuild / scalaVersion := "2.13.18"
 
-ThisBuild / licenses   := List(License.Apache2)
-ThisBuild / developers := List(
+ThisBuild / homepage      := Some(url("https://github.com/synnks/atoms"))
+ThisBuild / licenses      := List(License.Apache2)
+ThisBuild / developers    := List(
   Developer(
     "synnks",
     "Daniel Stanila",
@@ -11,6 +12,7 @@ ThisBuild / developers := List(
     url("https://github.com/synnks")
   )
 )
+ThisBuild / versionScheme := Some("early-semver")
 
 val CatsCoreVersion        = "2.13.0"
 val ShapelessVersion       = "2.3.13"
