@@ -44,7 +44,7 @@ class MapReduceTests extends AtomsSuite {
       val groupedAtoms = atoms.groupBy[Int :: String :: HNil]
 
       val result = groupedAtoms.mapReduce {
-        prependKey[HNil, Double, String] andThen prependKey[String :: HNil, Double, Int]
+        prependKey[HNil, Double, String] _ andThen prependKey[String :: HNil, Double, Int] _
       }
 
       assertTypedEquals[Atoms[Int :: String :: HNil, Double]](result, atoms)

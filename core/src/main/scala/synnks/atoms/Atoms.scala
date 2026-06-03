@@ -49,7 +49,7 @@ object Atoms {
   implicit def semigroup[K <: HList, V]: Semigroup[Atoms[K, V]] = _ ++ _
 
   def apply[C[_]: Reducible, K <: HList, V](values: C[(K, V)]): Atoms[K, V] =
-    Atoms(values.toNonEmptyList.map(Atom.apply[K, V].tupled))
+    Atoms(values.toNonEmptyList.map((Atom.apply[K, V] _).tupled))
 }
 
 final private[atoms] case class NestedAtoms[GH, GT <: HList, K <: HList, V](

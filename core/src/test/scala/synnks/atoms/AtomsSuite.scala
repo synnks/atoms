@@ -2,6 +2,7 @@ package synnks.atoms
 
 import cats.Eq
 import cats.syntax.all.*
+import munit.diff.DiffOptions
 import munit.{ Location, ScalaCheckSuite }
 import org.scalacheck.Test
 import synnks.atoms.util.*
@@ -15,5 +16,5 @@ trait AtomsSuite
   override protected def scalaCheckTestParameters: Test.Parameters = Test.Parameters.defaultVerbose
 
   protected def assertTypedEquals[A: Eq](actual: A, expected: A): Unit =
-    assertEquals(actual, expected)(Location.generate, _ === _)
+    assertEquals(actual, expected)(Location.generate, _ === _, DiffOptions.default)
 }
