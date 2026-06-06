@@ -1,6 +1,7 @@
 ThisBuild / organization := "com.synnks"
 
-ThisBuild / scalaVersion := "2.13.18"
+ThisBuild / scalaVersion       := "2.13.18"
+ThisBuild / crossScalaVersions := Seq("2.13.18", "3.8.3")
 
 ThisBuild / homepage      := Some(url("https://github.com/synnks/atoms"))
 ThisBuild / licenses      := List(License.Apache2)
@@ -22,6 +23,7 @@ val MUnitScalaCheckVersion = "1.3.0"
 lazy val root = (project in file("."))
   .aggregate(core)
   .settings(
+    name           := "atoms",
     publish / skip := true
   )
 
@@ -33,10 +35,12 @@ lazy val core = (project in file("core"))
 
 ThisBuild / libraryDependencies ++= Seq(
   "org.typelevel" %% "cats-core"        % CatsCoreVersion,
-  "com.chuusai"   %% "shapeless"        % ShapelessVersion,
   "org.scalameta" %% "munit"            % MUnitVersion           % Test,
   "org.scalameta" %% "munit-scalacheck" % MUnitScalaCheckVersion % Test
-)
+) ++ (CrossVersion.partialVersion(scalaVersion.value) match {
+  case Some((2, _)) => Seq("com.chuusai" %% "shapeless" % ShapelessVersion)
+  case _            => Nil
+})
 
 ThisBuild / coverageEnabled := false
 
@@ -46,10 +50,15 @@ ThisBuild / scalacOptions ++= Seq(
   "-feature",
   "-language:implicitConversions,higherKinds",
   "-deprecation",
-  "-unchecked",
-  "-Wnonunit-statement",
-  "-Wvalue-discard",
-  "-Xlint:implicit-recursion",
-  "-Xfatal-warnings",
-  "-Xsource:3"
-)
+  "-unchecked"
+) ++ (CrossVersion.partialVersion(scalaVersion.value) match {
+  case Some((2, _)) =>
+    Seq(
+      "-Wnonunit-statement",
+      "-Wvalue-discard",
+      "-Xlint:implicit-recursion",
+      "-Xfatal-warnings",
+      "-Xsource:3"
+    )
+  case _            => Nil
+})
