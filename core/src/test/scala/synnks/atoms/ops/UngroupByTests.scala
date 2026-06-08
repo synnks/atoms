@@ -1,8 +1,8 @@
 package synnks.atoms.ops
 
 import org.scalacheck.Prop.*
-import shapeless.*
 import synnks.atoms.*
+import synnks.atoms.hlist.*
 
 class UngroupByTests extends AtomsSuite {
 
@@ -13,8 +13,8 @@ class UngroupByTests extends AtomsSuite {
         compileErrors("groupedAtoms.ungroupBy[Boolean :: HNil]"),
         s"""|error:
             |
-            |Cannot create UngroupBy[Boolean :: shapeless.HNil, Int :: String :: shapeless.HNil, shapeless.HNil, Double] instance.
-            |Boolean :: shapeless.HNil contains elements that do not exist in Int :: String :: shapeless.HNil, or do not appear in the same order.
+            |Cannot create UngroupBy[Boolean :: synnks.atoms.hlist.HNil, Int :: String :: shapeless.HNil, shapeless.HNil, Double] instance.
+            |Boolean :: synnks.atoms.hlist.HNil contains elements that do not exist in Int :: String :: shapeless.HNil, or do not appear in the same order.
             |
             |groupedAtoms.ungroupBy[Boolean :: HNil]
             |                      ^
@@ -30,8 +30,8 @@ class UngroupByTests extends AtomsSuite {
         compileErrors("groupedAtoms.ungroupBy[String :: Int :: HNil]"),
         s"""|error:
             |
-            |Cannot create UngroupBy[String :: Int :: shapeless.HNil, Int :: String :: shapeless.HNil, shapeless.HNil, Double] instance.
-            |String :: Int :: shapeless.HNil contains elements that do not exist in Int :: String :: shapeless.HNil, or do not appear in the same order.
+            |Cannot create UngroupBy[String :: Int :: synnks.atoms.hlist.HNil, Int :: String :: shapeless.HNil, shapeless.HNil, Double] instance.
+            |String :: Int :: synnks.atoms.hlist.HNil contains elements that do not exist in Int :: String :: shapeless.HNil, or do not appear in the same order.
             |
             |groupedAtoms.ungroupBy[String :: Int :: HNil]
             |                      ^

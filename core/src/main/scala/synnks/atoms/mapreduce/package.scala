@@ -1,7 +1,7 @@
 package synnks.atoms
 
 import cats.Semigroup
-import shapeless.*
+import synnks.atoms.hlist.*
 import synnks.atoms.mapreduce.syntax.*
 
 package object mapreduce {

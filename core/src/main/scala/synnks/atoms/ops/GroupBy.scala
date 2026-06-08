@@ -1,9 +1,9 @@
 package synnks.atoms.ops
 
 import cats.Order
-import shapeless.*
-import shapeless.ops.hlist.Remove
 import synnks.atoms.*
+import synnks.atoms.hlist.*
+import synnks.atoms.hlist.ops.hlist.Remove
 
 import scala.annotation.implicitNotFound
 

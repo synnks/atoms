@@ -1,8 +1,8 @@
 package synnks.atoms.ops
 
 import org.scalacheck.Prop.*
-import shapeless.*
 import synnks.atoms.*
+import synnks.atoms.hlist.*
 
 class GroupByTests extends AtomsSuite {
 
@@ -12,8 +12,8 @@ class GroupByTests extends AtomsSuite {
         compileErrors("atoms.groupBy[Boolean :: HNil]"),
         s"""|error:
             |
-            |Cannot create GroupBy[Boolean :: shapeless.HNil, shapeless.HNil, Int :: String :: shapeless.HNil, Double] instance.
-            |Boolean :: shapeless.HNil contains elements that do not exist in Int :: String :: shapeless.HNil.
+            |Cannot create GroupBy[Boolean :: synnks.atoms.hlist.HNil, synnks.atoms.hlist.HNil, Int :: String :: synnks.atoms.hlist.HNil, Double] instance.
+            |Boolean :: synnks.atoms.hlist.HNil contains elements that do not exist in Int :: String :: synnks.atoms.hlist.HNil.
             |
             |atoms.groupBy[Boolean :: HNil]
             |             ^
@@ -63,7 +63,7 @@ class GroupByTests extends AtomsSuite {
     forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
       val expected = NestedAtoms(
         atoms.values
-          .groupMapNem(_.keys.select[String])(_.mapKeys(_.removeElem[String]._2))
+          .groupMapNem(_.keys.tail.head)(_.mapKeys(_.removeElem[String]._2))
           .map(Atoms(_))
       ): GroupedAtoms[String :: HNil, Int :: HNil, Double]
 
@@ -78,10 +78,10 @@ class GroupByTests extends AtomsSuite {
     forAll { (atoms: Atoms[Int :: String :: Boolean :: HNil, Double]) =>
       val expected = NestedAtoms(
         atoms.values
-          .groupMapNem(_.keys.select[Int])(_.mapKeys(_.removeElem[Int]._2))
+          .groupMapNem(_.keys.head)(_.mapKeys(_.removeElem[Int]._2))
           .map(
-            _.groupMapNem(_.keys.select[String])(_.mapKeys(_.removeElem[String]._2))
-              .map(_.groupMapNem(_.keys.select[Boolean])(_.mapKeys(_.removeElem[Boolean]._2)).map(Atoms(_)))
+            _.groupMapNem(_.keys.head)(_.mapKeys(_.removeElem[String]._2))
+              .map(_.groupMapNem(_.keys.head)(_.mapKeys(_.removeElem[Boolean]._2)).map(Atoms(_)))
               .map(NestedAtoms(_))
           )
           .map(NestedAtoms(_))
@@ -98,8 +98,8 @@ class GroupByTests extends AtomsSuite {
     forAll { (atoms: Atoms[Int :: String :: Boolean :: HNil, Double]) =>
       val expected = NestedAtoms(
         atoms.values
-          .groupMapNem(_.keys.select[Int])(_.mapKeys(_.removeElem[Int]._2))
-          .map(_.groupMapNem(_.keys.select[Boolean])(_.mapKeys(_.removeElem[Boolean]._2)).map(Atoms(_)))
+          .groupMapNem(_.keys.head)(_.mapKeys(_.removeElem[Int]._2))
+          .map(_.groupMapNem(_.keys.tail.head)(_.mapKeys(_.removeElem[Boolean]._2)).map(Atoms(_)))
           .map(NestedAtoms(_))
       ): GroupedAtoms[Int :: Boolean :: HNil, String :: HNil, Double]
 

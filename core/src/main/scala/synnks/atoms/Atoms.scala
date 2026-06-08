@@ -3,7 +3,7 @@ package synnks.atoms
 import cats.{ Reducible, Semigroup }
 import cats.data.{ NonEmptyList, NonEmptyMap }
 import cats.syntax.all.*
-import shapeless.*
+import synnks.atoms.hlist.*
 import synnks.atoms.ops.*
 
 sealed trait GroupedAtoms[G <: HList, K <: HList, V] extends Product with Serializable {

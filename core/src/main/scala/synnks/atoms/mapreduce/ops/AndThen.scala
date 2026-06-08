@@ -1,6 +1,6 @@
 package synnks.atoms.mapreduce.ops
 
-import shapeless.*
+import synnks.atoms.hlist.*
 import synnks.atoms.mapreduce.*
 
 import scala.annotation.implicitNotFound

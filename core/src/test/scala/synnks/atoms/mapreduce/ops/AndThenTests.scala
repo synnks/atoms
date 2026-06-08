@@ -1,8 +1,8 @@
 package synnks.atoms.mapreduce.ops
 
 import org.scalacheck.Prop.*
-import shapeless.*
 import synnks.atoms.*
+import synnks.atoms.hlist.*
 import synnks.atoms.mapreduce.*
 
 class AndThenTests extends AtomsSuite {
@@ -18,8 +18,8 @@ class AndThenTests extends AtomsSuite {
           s"""
              |error:
              |
-             |Cannot create AndThen[Int :: shapeless.HNil, String :: shapeless.HNil, Boolean, Double :: shapeless.HNil, Long :: shapeless.HNil, Unit] instance.
-             |The last element of the `IR2` type of the second MapReduceFunction[..., Long :: shapeless.HNil, ...] does not match the type of the result from the first MapReduceFunction[..., ..., Boolean].
+              |Cannot create AndThen[Int :: synnks.atoms.hlist.HNil, String :: synnks.atoms.hlist.HNil, Boolean, Double :: synnks.atoms.hlist.HNil, Long :: synnks.atoms.hlist.HNil, Unit] instance.
+              |The last element of the `IR2` type of the second MapReduceFunction[..., Long :: synnks.atoms.hlist.HNil, ...] does not match the type of the result from the first MapReduceFunction[..., ..., Boolean].
              |
              |f.andThen(g)
              |         ^
@@ -112,8 +112,8 @@ class AndThenTests extends AtomsSuite {
           s"""
              |error:
              |
-             |Cannot create AndThen[Int :: shapeless.HNil, String :: shapeless.HNil, Boolean, Double :: shapeless.HNil, Long :: shapeless.HNil, Unit] instance.
-             |The last element of the `IR2` type of the second MapReduceFunction[..., Long :: shapeless.HNil, ...] does not match the type of the result from the first MapReduceFunction[..., ..., Boolean].
+              |Cannot create AndThen[Int :: synnks.atoms.hlist.HNil, String :: synnks.atoms.hlist.HNil, Boolean, Double :: synnks.atoms.hlist.HNil, Long :: synnks.atoms.hlist.HNil, Unit] instance.
+              |The last element of the `IR2` type of the second MapReduceFunction[..., Long :: synnks.atoms.hlist.HNil, ...] does not match the type of the result from the first MapReduceFunction[..., ..., Boolean].
              |
              |g.compose(f)
              |         ^

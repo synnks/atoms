@@ -4,8 +4,8 @@ import cats.data.NonEmptyList
 import cats.{ Eq, Order }
 import cats.syntax.all.*
 import org.scalacheck.{ Arbitrary, Cogen }
-import shapeless.*
 import synnks.atoms.{ Atom, Atoms, GroupedAtoms, NestedAtoms }
+import synnks.atoms.hlist.*
 
 trait AtomsTestInstances {
 

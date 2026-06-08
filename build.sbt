@@ -89,6 +89,7 @@ lazy val hlist = (project in file("hlist"))
   )
 
 lazy val core = (project in file("core"))
+  .dependsOn(hlist)
   .settings(coreSettings)
   .settings(
     name        := "atoms",

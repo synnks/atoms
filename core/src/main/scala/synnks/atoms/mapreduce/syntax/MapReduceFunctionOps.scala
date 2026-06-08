@@ -1,6 +1,6 @@
 package synnks.atoms.mapreduce.syntax
 
-import shapeless.*
+import synnks.atoms.hlist.*
 import synnks.atoms.mapreduce.MapReduceFunction
 import synnks.atoms.mapreduce.ops.*
 

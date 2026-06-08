@@ -1,7 +1,7 @@
 package synnks.atoms.mapreduce
 
 import cats.Semigroup
-import shapeless.*
+import synnks.atoms.hlist.*
 
 sealed trait MapReduceFunction[K <: HList, IR <: HList, +R] extends Product with Serializable
 

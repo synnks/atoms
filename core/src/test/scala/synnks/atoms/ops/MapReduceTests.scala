@@ -1,8 +1,8 @@
 package synnks.atoms.ops
 
 import org.scalacheck.Prop.*
-import shapeless.*
 import synnks.atoms.*
+import synnks.atoms.hlist.*
 import synnks.atoms.mapreduce.*
 
 class MapReduceTests extends AtomsSuite {
@@ -19,8 +19,8 @@ class MapReduceTests extends AtomsSuite {
           compileErrors("groupedAtoms.mapReduce(f)"),
           s"""|error:
               |
-              |Cannot create MapReduce[Int :: String :: shapeless.HNil, shapeless.HNil, Double, Unit :: Unit :: shapeless.HNil, Unit] instance.
-              |The type of the last element of Unit :: Unit :: shapeless.HNil needs to be Atoms[shapeless.HNil, Double].
+              |Cannot create MapReduce[Int :: String :: shapeless.HNil, shapeless.HNil, Double, Unit :: Unit :: synnks.atoms.hlist.HNil, Unit] instance.
+              |The type of the last element of Unit :: Unit :: synnks.atoms.hlist.HNil needs to be Atoms[shapeless.HNil, Double].
               |
               |groupedAtoms.mapReduce(f)
               |                      ^

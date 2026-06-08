@@ -1,8 +1,8 @@
 package synnks.atoms.ops
 
 import cats.data.{ NonEmptyList, NonEmptyMap }
-import shapeless.*
 import synnks.atoms.*
+import synnks.atoms.hlist.*
 
 import scala.annotation.implicitNotFound
 

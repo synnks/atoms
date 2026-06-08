@@ -1,6 +1,6 @@
 package synnks.atoms
 
-import shapeless.*
+import synnks.atoms.hlist.*
 
 final case class Atom[K <: HList, V](keys: K, value: V) {
 

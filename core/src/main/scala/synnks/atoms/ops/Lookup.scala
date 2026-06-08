@@ -1,7 +1,7 @@
 package synnks.atoms.ops
 
-import shapeless.*
 import synnks.atoms.*
+import synnks.atoms.hlist.*
 
 import scala.annotation.implicitNotFound
 
