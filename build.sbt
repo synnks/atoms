@@ -12,9 +12,10 @@ ThisBuild / developers    := List(
 ThisBuild / versionScheme := Some("early-semver")
 
 val Scala213Version = "2.13.18"
+val Scala3Version   = "3.8.4"
 
 ThisBuild / scalaVersion       := Scala213Version
-ThisBuild / crossScalaVersions := Seq(Scala213Version)
+ThisBuild / crossScalaVersions := Seq(Scala213Version, Scala3Version)
 
 val CatsCoreVersion        = "2.13.0"
 val ShapelessVersion       = "2.3.13"
@@ -38,10 +39,14 @@ val scala2ScalacOptions = Seq(
   "-Xsource:3"
 )
 
+val scala3ScalacOptions = Seq(
+  "-Werror"
+)
+
 val scalaVersionSpecificScalacOptions = Def.setting {
   ScalaVersionKind.from(scalaVersion.value) match {
     case ScalaVersionKind.Scala2 => scala2ScalacOptions
-    case ScalaVersionKind.Scala3 => Nil
+    case ScalaVersionKind.Scala3 => scala3ScalacOptions
   }
 }
 
