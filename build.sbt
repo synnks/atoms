@@ -45,7 +45,7 @@ val scalaVersionSpecificScalacOptions = Def.setting {
   }
 }
 
-val scalaVersionSpecificDependencies = Def.setting {
+val hlistBackendDependencies = Def.setting {
   ScalaVersionKind.from(scalaVersion.value) match {
     case ScalaVersionKind.Scala2 => Seq("com.chuusai" %% "shapeless" % ShapelessVersion)
     case ScalaVersionKind.Scala3 => Nil
@@ -63,15 +63,8 @@ val commonTestSettings = Seq(
   )
 )
 
-val coreSettings = commonScalacSettings ++ commonTestSettings ++ Seq(
-  libraryDependencies ++= Seq(
-    "org.typelevel" %% "cats-core" % CatsCoreVersion
-  ) ++ scalaVersionSpecificDependencies.value,
-  coverageEnabled := false
-)
-
 val hlistSettings = commonScalacSettings ++ Seq(
-  libraryDependencies ++= scalaVersionSpecificDependencies.value,
+  libraryDependencies ++= hlistBackendDependencies.value,
   publish / skip := true
 )
 
@@ -88,8 +81,17 @@ lazy val hlist = (project in file("hlist"))
     name := "atoms-hlist"
   )
 
+val coreSettings = commonScalacSettings ++ commonTestSettings ++ Seq(
+  libraryDependencies ++= Seq(
+    "org.typelevel" %% "cats-core" % CatsCoreVersion
+  ) ++ hlistBackendDependencies.value,
+  coverageEnabled := false,
+  Compile / packageBin / mappings ++= (hlist / Compile / packageBin / mappings).value,
+  Compile / packageSrc / mappings ++= (hlist / Compile / packageSrc / mappings).value
+)
+
 lazy val core = (project in file("core"))
-  .dependsOn(hlist)
+  .dependsOn(hlist % "compile-internal, test-internal")
   .settings(coreSettings)
   .settings(
     name        := "atoms",
