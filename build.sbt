@@ -70,11 +70,22 @@ val coreSettings = commonScalacSettings ++ commonTestSettings ++ Seq(
   coverageEnabled := false
 )
 
+val hlistSettings = commonScalacSettings ++ Seq(
+  libraryDependencies ++= scalaVersionSpecificDependencies.value,
+  publish / skip := true
+)
+
 lazy val root = (project in file("."))
-  .aggregate(core)
+  .aggregate(core, hlist)
   .settings(
     name           := "atoms",
     publish / skip := true
+  )
+
+lazy val hlist = (project in file("hlist"))
+  .settings(hlistSettings)
+  .settings(
+    name := "atoms-hlist"
   )
 
 lazy val core = (project in file("core"))
