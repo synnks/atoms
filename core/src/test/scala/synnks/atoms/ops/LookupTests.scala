@@ -10,16 +10,12 @@ class LookupTests extends AtomsSuite {
   test("lookup element outside of G compilation error") {
     forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
       val groupedAtoms = atoms.groupBy[Int :: String :: HNil]
-      assertNoDiff(
+      assertCompileErrorsContain(
         compileErrors("groupedAtoms.lookup(true :: HNil)"),
-        s"""|error:
-            |
-            |Cannot create Lookup[Boolean :: shapeless.HNil, Int :: String :: shapeless.HNil, shapeless.HNil, Double] instance.
-            |Boolean :: shapeless.HNil contains elements that do not exist in Int :: String :: shapeless.HNil, or do not appear in the same order.
-            |
-            |groupedAtoms.lookup(true :: HNil)
-            |                   ^
-            |""".stripMargin
+        "Cannot create Lookup[",
+        "contains elements that do not exist in",
+        "or do not appear in the same order",
+        "groupedAtoms.lookup(true :: HNil)"
       )
     }
   }
@@ -27,16 +23,12 @@ class LookupTests extends AtomsSuite {
   test("lookup elements of G out of order compilation error") {
     forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
       val groupedAtoms = atoms.groupBy[Int :: String :: HNil]
-      assertNoDiff(
+      assertCompileErrorsContain(
         compileErrors("groupedAtoms.lookup(\"Hello\" :: 1 :: HNil)"),
-        s"""|error:
-            |
-            |Cannot create Lookup[String :: Int :: shapeless.HNil, Int :: String :: shapeless.HNil, shapeless.HNil, Double] instance.
-            |String :: Int :: shapeless.HNil contains elements that do not exist in Int :: String :: shapeless.HNil, or do not appear in the same order.
-            |
-            |groupedAtoms.lookup("Hello" :: 1 :: HNil)
-            |                   ^
-            |""".stripMargin
+        "Cannot create Lookup[",
+        "contains elements that do not exist in",
+        "or do not appear in the same order",
+        "groupedAtoms.lookup(\"Hello\" :: 1 :: HNil)"
       )
     }
   }

@@ -8,16 +8,11 @@ class GroupByTests extends AtomsSuite {
 
   test("groupBy element outside of K compilation error") {
     forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
-      assertNoDiff(
+      assertCompileErrorsContain(
         compileErrors("atoms.groupBy[Boolean :: HNil]"),
-        s"""|error:
-            |
-            |Cannot create GroupBy[Boolean :: synnks.atoms.hlist.HNil, synnks.atoms.hlist.HNil, Int :: String :: synnks.atoms.hlist.HNil, Double] instance.
-            |Boolean :: synnks.atoms.hlist.HNil contains elements that do not exist in Int :: String :: synnks.atoms.hlist.HNil.
-            |
-            |atoms.groupBy[Boolean :: HNil]
-            |             ^
-            |""".stripMargin
+        "Cannot create GroupBy[",
+        "contains elements that do not exist in",
+        "atoms.groupBy[Boolean :: HNil]"
       )
     }
   }

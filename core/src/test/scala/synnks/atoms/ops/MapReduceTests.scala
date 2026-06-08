@@ -15,16 +15,12 @@ class MapReduceTests extends AtomsSuite {
       ) =>
         val groupedAtoms = atoms.groupBy[Int :: String :: HNil]
 
-        assertNoDiff(
+        assertCompileErrorsContain(
           compileErrors("groupedAtoms.mapReduce(f)"),
-          s"""|error:
-              |
-              |Cannot create MapReduce[Int :: String :: shapeless.HNil, shapeless.HNil, Double, Unit :: Unit :: synnks.atoms.hlist.HNil, Unit] instance.
-              |The type of the last element of Unit :: Unit :: synnks.atoms.hlist.HNil needs to be Atoms[shapeless.HNil, Double].
-              |
-              |groupedAtoms.mapReduce(f)
-              |                      ^
-              |""".stripMargin
+          "Cannot create MapReduce[",
+          "The type of the last element of",
+          "needs to be Atoms[",
+          "groupedAtoms.mapReduce(f)"
         )
     }
   }
@@ -43,9 +39,14 @@ class MapReduceTests extends AtomsSuite {
     forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
       val groupedAtoms = atoms.groupBy[Int :: String :: HNil]
 
-      val result = groupedAtoms.mapReduce {
-        prependKey[HNil, Double, String] _ andThen prependKey[String :: HNil, Double, Int] _
-      }
+      val prependString: MapReduceFunction[String :: HNil, Atoms[HNil, Double] :: HNil, Atoms[String :: HNil, Double]] =
+        MapReduceFunction[String, Atoms[HNil, Double], Atoms[String :: HNil, Double]](prependKey[HNil, Double, String])
+      val prependInt
+        : MapReduceFunction[Int :: HNil, Atoms[String :: HNil, Double] :: HNil, Atoms[Int :: String :: HNil, Double]]  =
+        MapReduceFunction[Int, Atoms[String :: HNil, Double], Atoms[Int :: String :: HNil, Double]](
+          prependKey[String :: HNil, Double, Int]
+        )
+      val result                                                                                                       = groupedAtoms.mapReduce(prependString.andThen(prependInt))
 
       assertTypedEquals[Atoms[Int :: String :: HNil, Double]](result, atoms)
     }

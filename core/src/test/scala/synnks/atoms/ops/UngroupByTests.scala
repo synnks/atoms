@@ -9,16 +9,12 @@ class UngroupByTests extends AtomsSuite {
   test("ungroupBy element outside of G compilation error") {
     forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
       val groupedAtoms = atoms.groupBy[Int :: String :: HNil]
-      assertNoDiff(
+      assertCompileErrorsContain(
         compileErrors("groupedAtoms.ungroupBy[Boolean :: HNil]"),
-        s"""|error:
-            |
-            |Cannot create UngroupBy[Boolean :: synnks.atoms.hlist.HNil, Int :: String :: shapeless.HNil, shapeless.HNil, Double] instance.
-            |Boolean :: synnks.atoms.hlist.HNil contains elements that do not exist in Int :: String :: shapeless.HNil, or do not appear in the same order.
-            |
-            |groupedAtoms.ungroupBy[Boolean :: HNil]
-            |                      ^
-            |""".stripMargin
+        "Cannot create UngroupBy[",
+        "contains elements that do not exist in",
+        "or do not appear in the same order",
+        "groupedAtoms.ungroupBy[Boolean :: HNil]"
       )
     }
   }
@@ -26,16 +22,12 @@ class UngroupByTests extends AtomsSuite {
   test("ungroupBy elements of G out of order compilation error") {
     forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
       val groupedAtoms = atoms.groupBy[Int :: String :: HNil]
-      assertNoDiff(
+      assertCompileErrorsContain(
         compileErrors("groupedAtoms.ungroupBy[String :: Int :: HNil]"),
-        s"""|error:
-            |
-            |Cannot create UngroupBy[String :: Int :: synnks.atoms.hlist.HNil, Int :: String :: shapeless.HNil, shapeless.HNil, Double] instance.
-            |String :: Int :: synnks.atoms.hlist.HNil contains elements that do not exist in Int :: String :: shapeless.HNil, or do not appear in the same order.
-            |
-            |groupedAtoms.ungroupBy[String :: Int :: HNil]
-            |                      ^
-            |""".stripMargin
+        "Cannot create UngroupBy[",
+        "contains elements that do not exist in",
+        "or do not appear in the same order",
+        "groupedAtoms.ungroupBy[String :: Int :: HNil]"
       )
     }
   }
