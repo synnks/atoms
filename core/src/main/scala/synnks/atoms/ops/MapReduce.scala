@@ -37,16 +37,8 @@ object MapReduce {
       override def apply(
         groupedAtoms: GroupedAtoms[GH :: GT, K, V],
         f: MapReduceFunction[GH :: GT, IRH :: IRT, R]
-      ): R = f match {
-        case f: MapReduceFunction.Chain[GH, GT, IRH, IRT, R] =>
-          groupedAtoms match {
-            case NestedAtoms(atoms) =>
-              atoms
-                .map(mapReduce(_, f.next))
-                .transform(f.map)
-                .reduceLeft(f.reduce)
-          }
-      }
+      ): R =
+        MapReduceCompat(groupedAtoms, f, mapReduce)
     }
 
   final class PartiallyApplied[G <: HList, K <: HList, V, R](val groupedAtoms: GroupedAtoms[G, K, V]) extends AnyVal {
