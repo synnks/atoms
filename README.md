@@ -1,5 +1,9 @@
 # Atoms
 
+```scala
+libraryDependencies += "com.synnks" %% "atoms" % "<version>"
+```
+
 Type-safe data cube for Scala.
 
 `Atoms` is a small library for working with non-empty collections of keyed facts.
@@ -30,7 +34,8 @@ With ordinary maps, these transformations are easy to get subtly wrong. Dimensio
 import cats.data.NonEmptyList
 import cats.syntax.all.*
 import cats.{ Order, Semigroup }
-import shapeless.*
+import synnks.atoms.*
+import synnks.atoms.hlist.*
 import synnks.atoms.mapreduce.*
 
 final case class Country(value: String)
