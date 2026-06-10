@@ -43,11 +43,6 @@ val scala3ScalacOptions = Seq(
   "-Werror"
 )
 
-val commonDocScalacOptions = Seq(
-  "-encoding",
-  "utf8"
-)
-
 val scalaVersionSpecificScalacOptions = Def.setting {
   ScalaVersionKind.from(scalaVersion.value) match {
     case ScalaVersionKind.Scala2 => scala2ScalacOptions
@@ -63,8 +58,7 @@ val hlistBackendDependencies = Def.setting {
 }
 
 val commonScalacSettings = Seq(
-  scalacOptions ++= commonScalacOptions ++ scalaVersionSpecificScalacOptions.value,
-  Compile / doc / scalacOptions := commonDocScalacOptions
+  scalacOptions ++= commonScalacOptions ++ scalaVersionSpecificScalacOptions.value
 )
 
 val commonTestSettings = Seq(
