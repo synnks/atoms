@@ -42,7 +42,7 @@ object UngroupBy {
 
   implicit def ungroupBySameHead[LH, LT <: HList, GT <: HList, K <: HList, V, NG <: HList, NK <: HList, Out0](implicit
     ungroupBy: UngroupBy[LT, GT, K, V] { type Out <: GroupedAtoms[NG, NK, V] },
-    mapKeys: MapKeys.Aux[LH :: NK, NG, NK, V, Out0],
+    mapAtoms: MapAtoms.Aux[NG, NK, V, LH :: NK, V, Out0],
     semigroup: Semigroup[Out0]
   ): UngroupBy.Aux[LH :: LT, LH :: GT, K, V, Out0] = new UngroupBy[LH :: LT, LH :: GT, K, V] {
     override type Out = Out0
@@ -50,7 +50,7 @@ object UngroupBy {
     override def apply(groupedAtoms: GroupedAtoms[LH :: GT, K, V]): Out = groupedAtoms match {
       case NestedAtoms(groupedAtoms) =>
         groupedAtoms.transform { (lh, groupedAtoms) =>
-          mapKeys(ungroupBy(groupedAtoms), lh :: _)
+          mapAtoms(ungroupBy(groupedAtoms), _.mapKeys(lh :: _))
         }.reduce
     }
   }

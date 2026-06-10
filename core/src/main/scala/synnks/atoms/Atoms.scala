@@ -1,8 +1,8 @@
 package synnks.atoms
 
-import cats.{ Reducible, Semigroup }
 import cats.data.{ NonEmptyList, NonEmptyMap }
 import cats.syntax.all.*
+import cats.{ Reducible, Semigroup }
 import synnks.atoms.hlist.*
 import synnks.atoms.ops.*
 
@@ -10,9 +10,13 @@ sealed trait GroupedAtoms[G <: HList, K <: HList, V] extends Product with Serial
 
   def ++(other: GroupedAtoms[G, K, V]): GroupedAtoms[G, K, V]
 
-  def map[NK <: HList, NV](f: Atom[K, V] => Atom[NK, NV]): GroupedAtoms[G, NK, NV]
+  private[atoms] def mapAtoms[NK <: HList, NV](f: Atom[K, V] => Atom[NK, NV]): GroupedAtoms[G, NK, NV]
 
-  def mapKeys[L <: HList](f: K => L)(implicit mapKeys: MapKeys[L, G, K, V]): mapKeys.Out = mapKeys(this, f)
+  def map[NK <: HList, NV](f: Atom[K, V] => Atom[NK, NV])(implicit mapAtoms: MapAtoms[G, K, V, NK, NV]): mapAtoms.Out =
+    mapAtoms(this, f)
+
+  def mapKeys[NK <: HList](f: K => NK)(implicit mapAtoms: MapAtoms[G, K, V, NK, V]): mapAtoms.Out =
+    mapAtoms(this, _.mapKeys(f))
 
   def groupBy[L <: HList](implicit groupBy: GroupBy[L, G, K, V]): groupBy.Out = groupBy(this)
 
@@ -39,7 +43,9 @@ final case class Atoms[K <: HList, V](values: NonEmptyList[Atom[K, V]]) extends 
     case other: Atoms[K, V] => this ++ other
   }
 
-  override def map[NK <: HList, NV](f: Atom[K, V] => Atom[NK, NV]): Atoms[NK, NV] = Atoms(values.map(f))
+  override private[atoms] def mapAtoms[NK <: HList, NV](f: Atom[K, V] => Atom[NK, NV]): Atoms[NK, NV] = Atoms(
+    values.map(f)
+  )
 
 }
 
@@ -59,6 +65,6 @@ final private[atoms] case class NestedAtoms[GH, GT <: HList, K <: HList, V](
     case NestedAtoms(groupedAtoms) => NestedAtoms(this.groupedAtoms |+| groupedAtoms)
   }
 
-  override def map[NK <: HList, NV](f: Atom[K, V] => Atom[NK, NV]): GroupedAtoms[GH :: GT, NK, NV] =
-    NestedAtoms(groupedAtoms.map(_.map(f)))
+  override private[atoms] def mapAtoms[NK <: HList, NV](f: Atom[K, V] => Atom[NK, NV]): GroupedAtoms[GH :: GT, NK, NV] =
+    NestedAtoms(groupedAtoms.map(_.mapAtoms(f)))
 }
