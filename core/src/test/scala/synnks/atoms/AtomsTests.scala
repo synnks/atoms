@@ -1,37 +1,35 @@
 package synnks.atoms
 
-import cats.Semigroup
 import cats.syntax.all.*
 import org.scalacheck.Prop.*
-import shapeless.*
-import shapeless.ops.hlist.Reverse
+import synnks.atoms.hlist.*
 
 class AtomsTests extends AtomsSuite {
 
   test("map") {
-    def mapFunction[K <: HList, V: Semigroup](atom: Atom[K, V])(implicit reverse: Reverse[K]): Atom[reverse.Out, V] =
+    def mapFunction(atom: Atom[Int :: String :: HNil, Double]): Atom[String :: Int :: HNil, Double] =
       atom.map { case (keys, value) =>
-        (keys.reverse, value |+| value)
+        (keys.tail.head :: keys.head :: HNil, value |+| value)
       }
 
     forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
-      val expected = Atoms(atoms.values.map(mapFunction(_)))
+      val expected = Atoms(atoms.values.map(mapFunction))
 
       assertTypedEquals[Atoms[String :: Int :: HNil, Double]](
-        atoms.map(mapFunction(_)),
+        atoms.map(mapFunction),
         expected
       )
     }
   }
 
   test("mapKeys") {
-    def mapKeysFunction[K <: HList](keys: K)(implicit reverse: Reverse[K]): reverse.Out = keys.reverse
+    def mapKeysFunction(keys: Int :: String :: HNil): String :: Int :: HNil = keys.tail.head :: keys.head :: HNil
 
     forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
-      val expected = Atoms(atoms.values.map(_.mapKeys(mapKeysFunction(_))))
+      val expected = Atoms(atoms.values.map(_.mapKeys(mapKeysFunction)))
 
       assertTypedEquals[Atoms[String :: Int :: HNil, Double]](
-        atoms.mapKeys(mapKeysFunction(_)),
+        atoms.mapKeys(mapKeysFunction),
         expected
       )
     }

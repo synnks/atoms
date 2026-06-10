@@ -2,7 +2,7 @@ package synnks.atoms.util
 
 import cats.Order
 import org.scalacheck.{ Arbitrary, Cogen, Gen }
-import shapeless.*
+import synnks.atoms.hlist.*
 
 trait HListTestInstances {
 

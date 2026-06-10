@@ -1,7 +1,7 @@
 package synnks.atoms.ops
 
-import shapeless.*
 import synnks.atoms.*
+import synnks.atoms.hlist.*
 
 import scala.annotation.implicitNotFound
 
@@ -29,7 +29,7 @@ object Lookup {
       override type Out = ungroupBy.Out
 
       override def apply(groupedAtoms: GroupedAtoms[G, K, V], lookupKeys: HNil): Option[Out] =
-        Some(groupedAtoms.ungroupBy[G](ungroupBy))
+        Some(ungroupBy(groupedAtoms))
     }
 
   implicit def lookupSameHead[LH, LT <: HList, GT <: HList, K <: HList, V](implicit

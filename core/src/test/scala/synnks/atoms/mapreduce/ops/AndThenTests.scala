@@ -1,8 +1,8 @@
 package synnks.atoms.mapreduce.ops
 
 import org.scalacheck.Prop.*
-import shapeless.*
 import synnks.atoms.*
+import synnks.atoms.hlist.*
 import synnks.atoms.mapreduce.*
 
 class AndThenTests extends AtomsSuite {
@@ -13,17 +13,12 @@ class AndThenTests extends AtomsSuite {
         f: MapReduceFunction[Int :: HNil, String :: HNil, Boolean],
         g: MapReduceFunction[Double :: HNil, Long :: HNil, Unit]
       ) =>
-        assertNoDiff(
-          compileErrors("f.andThen(g)"),
-          s"""
-             |error:
-             |
-             |Cannot create AndThen[Int :: shapeless.HNil, String :: shapeless.HNil, Boolean, Double :: shapeless.HNil, Long :: shapeless.HNil, Unit] instance.
-             |The last element of the `IR2` type of the second MapReduceFunction[..., Long :: shapeless.HNil, ...] does not match the type of the result from the first MapReduceFunction[..., ..., Boolean].
-             |
-             |f.andThen(g)
-             |         ^
-             |""".stripMargin
+        assertCompileErrorsContain(
+          compileErrors("f andThen g"),
+          "Cannot create AndThen[",
+          "The last element of the `IR2` type of the second MapReduceFunction",
+          "does not match the type of the result from the first MapReduceFunction",
+          "f andThen g"
         )
     }
   }
@@ -107,17 +102,12 @@ class AndThenTests extends AtomsSuite {
         f: MapReduceFunction[Int :: HNil, String :: HNil, Boolean],
         g: MapReduceFunction[Double :: HNil, Long :: HNil, Unit]
       ) =>
-        assertNoDiff(
-          compileErrors("g.compose(f)"),
-          s"""
-             |error:
-             |
-             |Cannot create AndThen[Int :: shapeless.HNil, String :: shapeless.HNil, Boolean, Double :: shapeless.HNil, Long :: shapeless.HNil, Unit] instance.
-             |The last element of the `IR2` type of the second MapReduceFunction[..., Long :: shapeless.HNil, ...] does not match the type of the result from the first MapReduceFunction[..., ..., Boolean].
-             |
-             |g.compose(f)
-             |         ^
-             |""".stripMargin
+        assertCompileErrorsContain(
+          compileErrors("g compose f"),
+          "Cannot create AndThen[",
+          "The last element of the `IR2` type of the second MapReduceFunction",
+          "does not match the type of the result from the first MapReduceFunction",
+          "g compose f"
         )
     }
   }

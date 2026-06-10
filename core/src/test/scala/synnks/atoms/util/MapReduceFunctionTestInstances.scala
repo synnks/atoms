@@ -2,8 +2,8 @@ package synnks.atoms.util
 
 import cats.Eq
 import org.scalacheck.{ Arbitrary, Cogen, Gen }
-import shapeless.*
 import synnks.atoms.mapreduce.*
+import synnks.atoms.hlist.*
 
 trait MapReduceFunctionTestInstances {
 

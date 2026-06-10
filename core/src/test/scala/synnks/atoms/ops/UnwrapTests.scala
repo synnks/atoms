@@ -3,7 +3,7 @@ package synnks.atoms.ops
 import cats.data.{ NonEmptyList, NonEmptyMap }
 import org.scalacheck.Prop.*
 import synnks.atoms.*
-import shapeless.*
+import synnks.atoms.hlist.*
 
 class UnwrapTests extends AtomsSuite {
 
@@ -24,8 +24,8 @@ class UnwrapTests extends AtomsSuite {
       val result       = groupedAtoms.unwrap
 
       val expected = atoms.values
-        .groupMapNem(_.keys.select[Int])(_.mapKeys(_.removeElem[Int]._2))
-        .map(_.groupMapNem(_.keys.select[String])(_.mapKeys(_.removeElem[String]._2)))
+        .groupMapNem(_.keys.head)(_.mapKeys(_.removeElem[Int]._2))
+        .map(_.groupMapNem(_.keys.head)(_.mapKeys(_.removeElem[String]._2)))
 
       assertTypedEquals[NonEmptyMap[Int, NonEmptyMap[String, NonEmptyList[Atom[HNil, Double]]]]](
         result,
