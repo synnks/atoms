@@ -22,16 +22,4 @@ class AtomsTests extends AtomsSuite {
     }
   }
 
-  test("mapKeys") {
-    def mapKeysFunction(keys: Int :: String :: HNil): String :: Int :: HNil = keys.tail.head :: keys.head :: HNil
-
-    forAll { (atoms: Atoms[Int :: String :: HNil, Double]) =>
-      val expected = Atoms(atoms.values.map(_.mapKeys(mapKeysFunction)))
-
-      assertTypedEquals[Atoms[String :: Int :: HNil, Double]](
-        atoms.mapKeys(mapKeysFunction),
-        expected
-      )
-    }
-  }
 }

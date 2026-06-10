@@ -12,7 +12,7 @@ sealed trait GroupedAtoms[G <: HList, K <: HList, V] extends Product with Serial
 
   def map[NK <: HList, NV](f: Atom[K, V] => Atom[NK, NV]): GroupedAtoms[G, NK, NV]
 
-  def mapKeys[NK <: HList](f: K => NK): GroupedAtoms[G, NK, V] = map(_.mapKeys(f))
+  def mapKeys[L <: HList](f: K => L)(implicit mapKeys: MapKeys[L, G, K, V]): mapKeys.Out = mapKeys(this, f)
 
   def groupBy[L <: HList](implicit groupBy: GroupBy[L, G, K, V]): groupBy.Out = groupBy(this)
 
@@ -41,7 +41,6 @@ final case class Atoms[K <: HList, V](values: NonEmptyList[Atom[K, V]]) extends 
 
   override def map[NK <: HList, NV](f: Atom[K, V] => Atom[NK, NV]): Atoms[NK, NV] = Atoms(values.map(f))
 
-  override def mapKeys[NK <: HList](f: K => NK): Atoms[NK, V] = map(_.mapKeys(f))
 }
 
 object Atoms {

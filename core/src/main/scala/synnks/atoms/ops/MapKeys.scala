@@ -3,7 +3,12 @@ package synnks.atoms.ops
 import synnks.atoms.*
 import synnks.atoms.hlist.*
 
-trait MapKeys[L <: HList, G <: HList, K <: HList, V] {
+import scala.annotation.implicitNotFound
+
+@implicitNotFound("""
+Cannot create MapKeys[${L}, ${G}, ${K}, ${V}] instance.
+""")
+sealed trait MapKeys[L <: HList, G <: HList, K <: HList, V] {
   type Out
 
   def apply(groupedAtoms: GroupedAtoms[G, K, V], f: K => L): Out
@@ -23,7 +28,7 @@ object MapKeys {
       override type Out = Atoms[L, V]
 
       override def apply(groupedAtoms: GroupedAtoms[HNil, K, V], f: K => L): Out = groupedAtoms match {
-        case atoms: Atoms[K, V] => atoms.mapKeys(f)
+        case atoms: Atoms[K, V] => atoms.map(_.mapKeys(f))
       }
     }
 
@@ -32,7 +37,7 @@ object MapKeys {
     new MapKeys[L, GH :: GT, K, V] {
       override type Out = GroupedAtoms[GH :: GT, L, V]
 
-      override def apply(groupedAtoms: GroupedAtoms[GH :: GT, K, V], f: K => L): Out = groupedAtoms.mapKeys(f)
+      override def apply(groupedAtoms: GroupedAtoms[GH :: GT, K, V], f: K => L): Out = groupedAtoms.map(_.mapKeys(f))
     }
 
   implicit def mapKeysPrependHNil[LH, K <: HList, V]: MapKeys.Aux[LH :: K, HNil, K, V, Atoms[LH :: K, V]] =
