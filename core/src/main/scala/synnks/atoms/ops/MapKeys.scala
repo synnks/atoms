@@ -3,40 +3,42 @@ package synnks.atoms.ops
 import synnks.atoms.*
 import synnks.atoms.hlist.*
 
-trait MapKeys[A, K <: HList, NK <: HList, V] {
+trait MapKeys[L <: HList, G <: HList, K <: HList, V] {
   type Out
 
-  def apply(a: A)(f: K => NK): Out
+  def apply(groupedAtoms: GroupedAtoms[G, K, V], f: K => L): Out
 }
 
 object MapKeys {
-  type Aux[A, K <: HList, NK <: HList, V, Out0] = MapKeys[A, K, NK, V] {
+  type Aux[L <: HList, G <: HList, K <: HList, V, Out0] = MapKeys[L, G, K, V] {
     type Out = Out0
   }
 
-  @inline def apply[A, K <: HList, NK <: HList, V](implicit
-    instance: MapKeys[A, K, NK, V]
-  ): MapKeys.Aux[A, K, NK, V, instance.Out] = instance
+  @inline def apply[L <: HList, G <: HList, K <: HList, V](implicit
+    instance: MapKeys[L, G, K, V]
+  ): MapKeys.Aux[L, G, K, V, instance.Out] = instance
 
-  implicit def atomsMapKeys[K <: HList, NK <: HList, V]: MapKeys.Aux[Atoms[K, V], K, NK, V, Atoms[NK, V]] =
-    new MapKeys[Atoms[K, V], K, NK, V] {
-      override type Out = Atoms[NK, V]
+  implicit def mapKeysHNil[L <: HList, K <: HList, V]: MapKeys.Aux[L, HNil, K, V, Atoms[L, V]] =
+    new MapKeys[L, HNil, K, V] {
+      override type Out = Atoms[L, V]
 
-      override def apply(a: Atoms[K, V])(f: K => NK): Out = a.mapKeys(f)
+      override def apply(groupedAtoms: GroupedAtoms[HNil, K, V], f: K => L): Out = groupedAtoms match {
+        case atoms: Atoms[K, V] => atoms.mapKeys(f)
+      }
     }
 
-  implicit def groupedAtomsMapKeys[G <: HList, K <: HList, NK <: HList, V]
-    : MapKeys.Aux[GroupedAtoms[G, K, V], K, NK, V, GroupedAtoms[G, NK, V]] =
-    new MapKeys[GroupedAtoms[G, K, V], K, NK, V] {
-      override type Out = GroupedAtoms[G, NK, V]
+  implicit def mapKeysHCons[L <: HList, GH, GT <: HList, K <: HList, V]
+    : MapKeys.Aux[L, GH :: GT, K, V, GroupedAtoms[GH :: GT, L, V]] =
+    new MapKeys[L, GH :: GT, K, V] {
+      override type Out = GroupedAtoms[GH :: GT, L, V]
 
-      override def apply(a: GroupedAtoms[G, K, V])(f: K => NK): Out = a.mapKeys(f)
+      override def apply(groupedAtoms: GroupedAtoms[GH :: GT, K, V], f: K => L): Out = groupedAtoms.mapKeys(f)
     }
 
-  implicit def atomsPrependMapKeys[LH, K <: HList, V]: MapKeys.Aux[Atoms[K, V], K, LH :: K, V, Atoms[LH :: K, V]] =
-    atomsMapKeys[K, LH :: K, V]
+  implicit def mapKeysPrependHNil[LH, K <: HList, V]: MapKeys.Aux[LH :: K, HNil, K, V, Atoms[LH :: K, V]] =
+    mapKeysHNil[LH :: K, K, V]
 
-  implicit def groupedAtomsPrependMapKeys[LH, G <: HList, K <: HList, V]
-    : MapKeys.Aux[GroupedAtoms[G, K, V], K, LH :: K, V, GroupedAtoms[G, LH :: K, V]] =
-    groupedAtomsMapKeys[G, K, LH :: K, V]
+  implicit def mapKeysPrependHCons[LH, GH, GT <: HList, K <: HList, V]
+    : MapKeys.Aux[LH :: K, GH :: GT, K, V, GroupedAtoms[GH :: GT, LH :: K, V]] =
+    mapKeysHCons[LH :: K, GH, GT, K, V]
 }
