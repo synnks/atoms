@@ -6,8 +6,43 @@ on:
       - "v*"
 
 jobs:
+  verify-ci:
+    runs-on: ubuntu-latest
+    permissions:
+      checks: read
+      contents: read
+
+    steps:
+      - name: Require successful CI
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+        run: |
+          check_runs=$(gh api "/repos/$REPO/commits/$SHA/check-runs")
+
+          format_conclusion=$(jq -r '.check_runs[] | select(.name == "format") | .conclusion' <<< "$check_runs" | head -n 1)
+          if [ "$format_conclusion" != "success" ]; then
+            echo "Required check 'format' did not succeed for $SHA. Conclusion: ${format_conclusion:-missing}"
+            exit 1
+          fi
+
+          test_checks=$(jq -r '.check_runs[] | select(.name | startswith("test")) | [.name, .conclusion] | @tsv' <<< "$check_runs")
+          if [ -z "$test_checks" ]; then
+            echo "No test checks found for $SHA"
+            exit 1
+          fi
+
+          while IFS=$'\t' read -r check conclusion; do
+            if [ "$conclusion" != "success" ]; then
+              echo "Required check '$check' did not succeed for $SHA. Conclusion: ${conclusion:-missing}"
+              exit 1
+            fi
+          done <<< "$test_checks"
+
   publish:
     runs-on: ubuntu-latest
+    needs: verify-ci
     permissions:
       contents: write
 
