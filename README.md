@@ -67,14 +67,14 @@ val byCountryAndYear: GroupedAtoms[Country :: Year :: HNil, Product :: HNil, Rev
   atoms.groupBy[Country :: Year :: HNil]
 
 // Look up a specific slice
-val germany: Option[Atoms[Product :: Year :: HNil, Revenue]] =
+val germany: Option[Atoms[Year :: Product :: HNil, Revenue]] =
   byCountryAndYear.lookup(Country("DE") :: HNil)
 
 val germany2025: Option[Atoms[Product :: HNil, Revenue]] =
   byCountryAndYear.lookup(Country("DE") :: Year(2025) :: HNil)
 
 // Reshape: ungroup country, keeping only year as grouping
-val byYear: GroupedAtoms[Year :: HNil, Product :: Country :: HNil, Revenue] =
+val byYear: GroupedAtoms[Year :: HNil, Country :: Product :: HNil, Revenue] =
   byCountryAndYear.ungroupBy[Country :: HNil]
 
 // Aggregate: fold grouped data with a typed map-reduce pipeline
