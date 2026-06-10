@@ -42,7 +42,7 @@ object UngroupBy {
 
   implicit def ungroupBySameHead[LH, LT <: HList, GT <: HList, K <: HList, V, U, UK <: HList, Out0](implicit
     ungroupBy: UngroupBy.Aux[LT, GT, K, V, U],
-    mapKeys: MapKeys.Aux[U, V, UK, LH :: UK, Out0],
+    mapKeys: MapKeys.Aux[U, UK, LH :: UK, V, Out0],
     semigroup: Semigroup[Out0]
   ): UngroupBy.Aux[LH :: LT, LH :: GT, K, V, Out0] = new UngroupBy[LH :: LT, LH :: GT, K, V] {
     override type Out = Out0
