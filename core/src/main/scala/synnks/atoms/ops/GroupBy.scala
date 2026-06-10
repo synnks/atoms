@@ -43,8 +43,12 @@ object GroupBy {
         case Atoms(values) =>
           NestedAtoms {
             values
-              .groupByNem(_.keys.removeElem[LH]._1)
-              .map(values => groupBy(Atoms(values).mapKeys(_.removeElem[LH]._2)))
+              .map { atom =>
+                val (key, remainingKeys) = atom.keys.removeElem[LH]
+                (key, atom.mapKeys(_ => remainingKeys))
+              }
+              .groupMapNem(_._1)(_._2)
+              .map(values => groupBy(Atoms(values)))
           }
       }
     }
