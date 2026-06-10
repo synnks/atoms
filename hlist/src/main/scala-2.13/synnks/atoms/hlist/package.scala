@@ -9,9 +9,6 @@ package object hlist {
   val :: : shapeless.::.type = shapeless.::
 
   implicit final class HListOps[L <: HList](private val hlist: L) extends AnyVal {
-    def :+[E, Out <: HList](element: E)(implicit prepend: shapeless.ops.hlist.Prepend.Aux[L, E :: HNil, Out]): Out =
-      new shapeless.syntax.HListOps(hlist).:+(element)
-
     def removeElem[E](implicit remove: shapeless.ops.hlist.Remove[L, E]): remove.Out =
       new shapeless.syntax.HListOps(hlist).removeElem[E]
   }

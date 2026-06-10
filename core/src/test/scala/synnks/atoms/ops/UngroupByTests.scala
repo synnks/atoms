@@ -102,7 +102,7 @@ class UngroupByTests extends AtomsSuite {
   test("ungroupBy complements groupBy") {
     forAll { (atoms: Atoms[Int :: String :: Boolean :: HNil, Double]) =>
       assertTypedEquals[Atoms[Int :: String :: Boolean :: HNil, Double]](
-        atoms.groupBy[Boolean :: HNil].ungroupBy[Boolean :: HNil],
+        atoms.groupBy[Int :: String :: HNil].ungroupBy[Int :: String :: HNil],
         atoms
       )
     }
@@ -114,15 +114,15 @@ class UngroupByTests extends AtomsSuite {
       val expected     = groupedAtoms.ungroupBy[Int :: String :: Boolean :: HNil]
 
       assertTypedEquals[Atoms[Int :: String :: Boolean :: HNil, Double]](
-        groupedAtoms.ungroupBy[Int :: HNil].ungroupBy[String :: HNil].ungroupBy[Boolean :: HNil],
+        groupedAtoms.ungroupBy[Boolean :: HNil].ungroupBy[String :: HNil].ungroupBy[Int :: HNil],
         expected
       )
       assertTypedEquals[Atoms[Int :: String :: Boolean :: HNil, Double]](
-        groupedAtoms.ungroupBy[Int :: HNil].ungroupBy[String :: Boolean :: HNil],
+        groupedAtoms.ungroupBy[Boolean :: HNil].ungroupBy[Int :: String :: HNil],
         expected
       )
       assertTypedEquals[Atoms[Int :: String :: Boolean :: HNil, Double]](
-        groupedAtoms.ungroupBy[Int :: String :: HNil].ungroupBy[Boolean :: HNil],
+        groupedAtoms.ungroupBy[String :: Boolean :: HNil].ungroupBy[Int :: HNil],
         expected
       )
     }

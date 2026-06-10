@@ -1,8 +1,8 @@
 package synnks.atoms.ops
 
+import cats.Semigroup
 import synnks.atoms.*
 import synnks.atoms.hlist.*
-import synnks.atoms.hlist.ops.hlist.Prepend
 
 import scala.annotation.implicitNotFound
 
@@ -40,19 +40,18 @@ object UngroupBy {
       override def apply(groupedAtoms: GroupedAtoms[GH :: GT, K, V]): Out = groupedAtoms
     }
 
-  implicit def ungroupBySameHead[LH, LT <: HList, GT <: HList, K <: HList, V, NK <: HList](implicit
-    prepend: Prepend.Aux[K, LH :: HNil, NK],
-    ungroupBy: UngroupBy[LT, GT, NK, V]
-  ): UngroupBy.Aux[LH :: LT, LH :: GT, K, V, ungroupBy.Out] = new UngroupBy[LH :: LT, LH :: GT, K, V] {
-    override type Out = ungroupBy.Out
+  implicit def ungroupBySameHead[LH, LT <: HList, GT <: HList, K <: HList, V, NG <: HList, NK <: HList, Out0](implicit
+    ungroupBy: UngroupBy[LT, GT, K, V] { type Out <: GroupedAtoms[NG, NK, V] },
+    mapAtoms: MapAtoms.Aux[NG, NK, V, LH :: NK, V, Out0],
+    semigroup: Semigroup[Out0]
+  ): UngroupBy.Aux[LH :: LT, LH :: GT, K, V, Out0] = new UngroupBy[LH :: LT, LH :: GT, K, V] {
+    override type Out = Out0
 
     override def apply(groupedAtoms: GroupedAtoms[LH :: GT, K, V]): Out = groupedAtoms match {
       case NestedAtoms(groupedAtoms) =>
-        ungroupBy {
-          groupedAtoms.transform { (lh, groupedAtoms) =>
-            groupedAtoms.mapKeys(_ :+ lh)
-          }.reduce
-        }
+        groupedAtoms.transform { (lh, groupedAtoms) =>
+          mapAtoms(ungroupBy(groupedAtoms), _.mapKeys(lh :: _))
+        }.reduce
     }
   }
 

@@ -12,9 +12,6 @@ package object hlist {
   }
 
   extension [L <: HList](hlist: L) {
-    def :+[E, Out <: HList](element: E)(using prepend: ops.hlist.Prepend.Aux[L, E :: HNil, Out]): Out =
-      prepend(hlist, element *: HNil)
-
     def removeElem[E](using remove: ops.hlist.Remove[L, E]): remove.Out = remove(hlist)
   }
 }
