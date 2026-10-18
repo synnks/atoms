@@ -1,26 +1,26 @@
-ThisBuild / organization  := "com.synnks"
-ThisBuild / homepage      := Some(url("https://github.com/synnks/atoms"))
-ThisBuild / licenses      := List(License.Apache2)
-ThisBuild / developers    := List(
+organization  := "com.synnks"
+homepage      := Some(uri("https://github.com/synnks/atoms"))
+licenses      := List(License.Apache2)
+developers    := List(
   Developer(
     "synnks",
     "Daniel Stanila",
     "daniel.stanila@synnks.com",
-    url("https://github.com/synnks")
+    uri("https://github.com/synnks")
   )
 )
-ThisBuild / versionScheme := Some("early-semver")
+versionScheme := Some("early-semver")
 
 val Scala213Version = "2.13.18"
-val Scala3Version   = "3.8.4"
+val Scala3Version   = "3.9.0"
 
-ThisBuild / scalaVersion       := Scala213Version
-ThisBuild / crossScalaVersions := Seq(Scala213Version, Scala3Version)
+scalaVersion       := Scala213Version
+crossScalaVersions := Seq(Scala213Version, Scala3Version)
 
 val CatsCoreVersion        = "2.13.0"
 val ShapelessVersion       = "2.3.13"
-val MUnitVersion           = "1.3.2"
-val MUnitScalaCheckVersion = "1.3.0"
+val MUnitVersion           = "1.3.6"
+val MUnitScalaCheckVersion = "1.3.1"
 
 val commonScalacOptions = Seq(
   "-encoding",
@@ -76,8 +76,10 @@ val hlistSettings = commonScalacSettings ++ Seq(
 lazy val root = (project in file("."))
   .aggregate(core, hlist)
   .settings(
-    name           := "atoms",
-    publish / skip := true
+    name                          := "atoms-root",
+    publish / skip                := true,
+    scalafmtRepo / aggregate      := false,
+    scalafmtCheckRepo / aggregate := false
   )
 
 lazy val hlist = (project in file("hlist"))
