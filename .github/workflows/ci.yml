@@ -11,36 +11,49 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7.0.1
 
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6.1.0
         with:
           distribution: temurin
           java-version: 25
           cache: sbt
+          cache-read-only: true
 
-      - uses: sbt/setup-sbt@v1
+      - uses: sbt/setup-sbt@v1.5.12
 
       - name: Check formatting
-        run: sbt scalafmtSbtCheck scalafmtCheckAll
+        run: sbt scalafmtCheckRepo
 
   test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        scala: [2.13.18, 3.8.4]
+        scala: [2.13.18, 3.9.0, 3.10.0]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7.0.1
 
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6.1.0
         with:
           distribution: temurin
           java-version: 25
           cache: sbt
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
 
-      - uses: sbt/setup-sbt@v1
+      - uses: sbt/setup-sbt@v1.5.12
 
-      - name: Run tests
-        run: sbt "++ ${{ matrix.scala }}" core/test
+      - name: Run full tests
+        run: sbt "++ ${{ matrix.scala }}!; core/testFull"
+
+  tests:
+    if: always()
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Require successful test matrix
+        env:
+          TEST_RESULT: ${{ needs.test.result }}
+        run: test "$TEST_RESULT" = "success"

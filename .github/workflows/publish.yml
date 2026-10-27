@@ -21,24 +21,13 @@ jobs:
         run: |
           check_runs=$(gh api "/repos/$REPO/commits/$SHA/check-runs")
 
-          format_conclusion=$(jq -r '.check_runs[] | select(.name == "format") | .conclusion' <<< "$check_runs" | head -n 1)
-          if [ "$format_conclusion" != "success" ]; then
-            echo "Required check 'format' did not succeed for $SHA. Conclusion: ${format_conclusion:-missing}"
-            exit 1
-          fi
-
-          test_checks=$(jq -r '.check_runs[] | select(.name | startswith("test")) | [.name, .conclusion] | @tsv' <<< "$check_runs")
-          if [ -z "$test_checks" ]; then
-            echo "No test checks found for $SHA"
-            exit 1
-          fi
-
-          while IFS=$'\t' read -r check conclusion; do
+          for check in format tests; do
+            conclusion=$(jq -r --arg check "$check" '[.check_runs[] | select(.name == $check)] | first | .conclusion // "missing"' <<< "$check_runs")
             if [ "$conclusion" != "success" ]; then
-              echo "Required check '$check' did not succeed for $SHA. Conclusion: ${conclusion:-missing}"
+              echo "Required check '$check' did not succeed for $SHA. Conclusion: $conclusion"
               exit 1
             fi
-          done <<< "$test_checks"
+          done
 
   publish:
     runs-on: ubuntu-latest
@@ -47,15 +36,18 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
 
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6.1.0
         with:
           distribution: temurin
           java-version: 25
           cache: sbt
+          cache-read-only: true
 
-      - uses: sbt/setup-sbt@v1
+      - uses: sbt/setup-sbt@v1.5.12
 
       - name: Publish to Maven Central
         run: sbt ci-release
@@ -67,6 +59,6 @@ jobs:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
 
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@v3.0.3
         with:
           generate_release_notes: true
