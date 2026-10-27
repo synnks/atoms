@@ -22,6 +22,11 @@ val ShapelessVersion       = "2.3.13"
 val MUnitVersion           = "1.3.6"
 val MUnitScalaCheckVersion = "1.3.1"
 
+val Jackson2Version = "2.22.4"
+val Jackson3Version = "3.2.4"
+val JLineVersion    = "4.4.8"
+val JsoupVersion    = "1.23.2"
+
 val commonScalacOptions = Seq(
   "-encoding",
   "utf8",
@@ -50,6 +55,25 @@ val scalaVersionSpecificScalacOptions = Def.setting {
   }
 }
 
+val scalaVersionSpecificToolingDependencies = Def.setting {
+  ScalaVersionKind.from(scalaVersion.value) match {
+    case ScalaVersionKind.Scala2 => Nil
+    case ScalaVersionKind.Scala3 =>
+      Seq(
+        ("com.fasterxml.jackson" % "jackson-bom"  % Jackson2Version % "scala-doc-tool").pomOnly(),
+        ("tools.jackson"         % "jackson-bom"  % Jackson3Version % "scala-doc-tool").pomOnly(),
+        ("org.jline"             % "jline-parent" % JLineVersion    % "scala-repl-tool").pomOnly()
+      )
+  }
+}
+
+val scalaVersionSpecificToolingOverrides = Def.setting {
+  ScalaVersionKind.from(scalaVersion.value) match {
+    case ScalaVersionKind.Scala2 => Nil
+    case ScalaVersionKind.Scala3 => Seq("org.jsoup" % "jsoup" % JsoupVersion)
+  }
+}
+
 val hlistBackendDependencies = Def.setting {
   ScalaVersionKind.from(scalaVersion.value) match {
     case ScalaVersionKind.Scala2 => Seq("com.chuusai" %% "shapeless" % ShapelessVersion)
@@ -61,6 +85,12 @@ val commonScalacSettings = Seq(
   scalacOptions ++= commonScalacOptions ++ scalaVersionSpecificScalacOptions.value
 )
 
+// Keep Scaladoc and REPL dependency families aligned on patched versions.
+val commonToolingSettings = Seq(
+  libraryDependencies ++= scalaVersionSpecificToolingDependencies.value,
+  dependencyOverrides ++= scalaVersionSpecificToolingOverrides.value
+)
+
 val commonTestSettings = Seq(
   libraryDependencies ++= Seq(
     "org.scalameta" %% "munit"            % MUnitVersion           % Test,
@@ -68,13 +98,14 @@ val commonTestSettings = Seq(
   )
 )
 
-val hlistSettings = commonScalacSettings ++ Seq(
+val hlistSettings = commonScalacSettings ++ commonToolingSettings ++ Seq(
   libraryDependencies ++= hlistBackendDependencies.value,
   publish / skip := true
 )
 
 lazy val root = (project in file("."))
   .aggregate(core, hlist)
+  .settings(commonToolingSettings)
   .settings(
     name                          := "atoms-root",
     publish / skip                := true,
@@ -88,7 +119,7 @@ lazy val hlist = (project in file("hlist"))
     name := "atoms-hlist"
   )
 
-val coreSettings = commonScalacSettings ++ commonTestSettings ++ Seq(
+val coreSettings = commonScalacSettings ++ commonToolingSettings ++ commonTestSettings ++ Seq(
   libraryDependencies ++= Seq(
     "org.typelevel" %% "cats-core" % CatsCoreVersion
   ) ++ hlistBackendDependencies.value,
