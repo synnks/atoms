@@ -21,24 +21,13 @@ jobs:
         run: |
           check_runs=$(gh api "/repos/$REPO/commits/$SHA/check-runs")
 
-          format_conclusion=$(jq -r '.check_runs[] | select(.name == "format") | .conclusion' <<< "$check_runs" | head -n 1)
-          if [ "$format_conclusion" != "success" ]; then
-            echo "Required check 'format' did not succeed for $SHA. Conclusion: ${format_conclusion:-missing}"
-            exit 1
-          fi
-
-          test_checks=$(jq -r '.check_runs[] | select(.name | startswith("test")) | [.name, .conclusion] | @tsv' <<< "$check_runs")
-          if [ -z "$test_checks" ]; then
-            echo "No test checks found for $SHA"
-            exit 1
-          fi
-
-          while IFS=$'\t' read -r check conclusion; do
+          for check in format tests; do
+            conclusion=$(jq -r --arg check "$check" '[.check_runs[] | select(.name == $check)] | first | .conclusion // "missing"' <<< "$check_runs")
             if [ "$conclusion" != "success" ]; then
-              echo "Required check '$check' did not succeed for $SHA. Conclusion: ${conclusion:-missing}"
+              echo "Required check '$check' did not succeed for $SHA. Conclusion: $conclusion"
               exit 1
             fi
-          done <<< "$test_checks"
+          done
 
   publish:
     runs-on: ubuntu-latest

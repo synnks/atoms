@@ -46,3 +46,14 @@ jobs:
 
       - name: Run full tests
         run: sbt "++ ${{ matrix.scala }}!; core/testFull"
+
+  tests:
+    if: always()
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Require successful test matrix
+        env:
+          TEST_RESULT: ${{ needs.test.result }}
+        run: test "$TEST_RESULT" = "success"
