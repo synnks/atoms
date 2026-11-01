@@ -6,6 +6,13 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   format:
     runs-on: ubuntu-latest
@@ -16,11 +23,12 @@ jobs:
       - uses: actions/setup-java@v6.1.0
         with:
           distribution: temurin
-          java-version: 25
+          java-version: "25"
+          check-latest: true
           cache: sbt
           cache-read-only: true
 
-      - uses: sbt/setup-sbt@v1.5.12
+      - uses: sbt/setup-sbt@v1.5.13
 
       - name: Check formatting
         run: sbt scalafmtCheckRepo
@@ -38,22 +46,23 @@ jobs:
       - uses: actions/setup-java@v6.1.0
         with:
           distribution: temurin
-          java-version: 25
+          java-version: "25"
+          check-latest: true
           cache: sbt
           cache-read-only: ${{ github.event_name == 'pull_request' }}
 
-      - uses: sbt/setup-sbt@v1.5.12
+      - uses: sbt/setup-sbt@v1.5.13
 
       - name: Run full tests
         run: sbt "++ ${{ matrix.scala }}!; core/testFull"
 
-  tests:
+  greenlight:
     if: always()
-    needs: test
+    needs: [format, test]
     runs-on: ubuntu-latest
 
     steps:
-      - name: Require successful test matrix
+      - name: Require all checks to succeed
         env:
-          TEST_RESULT: ${{ needs.test.result }}
-        run: test "$TEST_RESULT" = "success"
+          JOB_RESULTS: ${{ toJSON(needs) }}
+        run: jq --exit-status 'length > 0 and all(.[]; .result == "success")' <<< "$JOB_RESULTS"

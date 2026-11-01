@@ -17,11 +17,12 @@ jobs:
       - uses: actions/setup-java@v6.1.0
         with:
           distribution: temurin
-          java-version: 25
+          java-version: "25"
+          check-latest: true
           cache: sbt
           cache-read-only: true
 
-      - uses: sbt/setup-sbt@v1.5.12
+      - uses: sbt/setup-sbt@v1.5.13
 
       - name: Submit dependency graph
         uses: scalacenter/sbt-dependency-submission@v3.2.3
