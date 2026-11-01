@@ -13,7 +13,7 @@ jobs:
       contents: read
 
     steps:
-      - name: Require successful CI
+      - name: Require successful greenlight
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
@@ -21,13 +21,12 @@ jobs:
         run: |
           check_runs=$(gh api "/repos/$REPO/commits/$SHA/check-runs")
 
-          for check in format tests; do
-            conclusion=$(jq -r --arg check "$check" '[.check_runs[] | select(.name == $check)] | first | .conclusion // "missing"' <<< "$check_runs")
-            if [ "$conclusion" != "success" ]; then
-              echo "Required check '$check' did not succeed for $SHA. Conclusion: $conclusion"
-              exit 1
-            fi
-          done
+          required_check=greenlight
+          conclusion=$(jq -r --arg check "$required_check" '[.check_runs[] | select(.name == $check)] | first | .conclusion // "missing"' <<< "$check_runs")
+          if [ "$conclusion" != "success" ]; then
+            echo "Required check '$required_check' did not succeed for $SHA. Conclusion: $conclusion"
+            exit 1
+          fi
 
   publish:
     runs-on: ubuntu-latest
@@ -43,11 +42,12 @@ jobs:
       - uses: actions/setup-java@v6.1.0
         with:
           distribution: temurin
-          java-version: 25
+          java-version: "25"
+          check-latest: true
           cache: sbt
           cache-read-only: true
 
-      - uses: sbt/setup-sbt@v1.5.12
+      - uses: sbt/setup-sbt@v1.5.13
 
       - name: Publish to Maven Central
         run: sbt ci-release
