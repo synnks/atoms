@@ -22,7 +22,7 @@ jobs:
           cache: sbt
           cache-read-only: true
 
-      - uses: sbt/setup-sbt@v1.5.13
+      - uses: sbt/setup-sbt@v1.5.14
 
       - name: Submit dependency graph
         uses: scalacenter/sbt-dependency-submission@v3.2.3
