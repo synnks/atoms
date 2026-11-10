@@ -24,8 +24,8 @@ val MUnitScalaCheckVersion = "1.3.1"
 
 val Jackson2Version = "2.22.4"
 val Jackson3Version = "3.2.4"
-val JLineVersion    = "4.4.8"
-val JsoupVersion    = "1.23.2"
+val JLineVersion    = "4.5.0"
+val JsoupVersion    = "1.24.1"
 
 val commonScalacOptions = Seq(
   "-encoding",
