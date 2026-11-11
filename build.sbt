@@ -22,8 +22,8 @@ val ShapelessVersion       = "2.3.13"
 val MUnitVersion           = "1.3.6"
 val MUnitScalaCheckVersion = "1.3.1"
 
-val Jackson2Version = "2.22.4"
-val Jackson3Version = "3.2.4"
+val Jackson2Version = "2.23.0"
+val Jackson3Version = "3.3.0"
 val JLineVersion    = "4.5.0"
 val JsoupVersion    = "1.24.1"
 
